@@ -3,1045 +3,719 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MK // PENTESTER</title>
+<title>MOUFEZ // XOP·SEC</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
 <style>
+/* =============================================
+   CSS CUSTOM PROPERTIES
+============================================= */
 :root {
-  --bg: #030609;
-  --bg2: #060d12;
-  --panel: #0a1520;
-  --border: #0f2535;
-  --accent: #00ff88;
-  --accent2: #00b8ff;
-  --accent3: #ff3366;
-  --warn: #ff9900;
-  --dim: #1a3a4a;
-  --text: #c8e8d0;
-  --text-dim: #4a7a5a;
-  --text-muted: #2a4a3a;
+  --bg:        #030609;
+  --bg2:       #060d12;
+  --panel:     #0a1520;
+  --border:    #0f2535;
+  --accent:    #00ff88;
+  --accent2:   #00b8ff;
+  --accent3:   #ff3366;
+  --warn:      #ff9900;
+  --dim:       #1a3a4a;
+  --text:      #c8e8d0;
+  --text-dim:  #4a7a5a;
+  --text-muted:#2a4a3a;
   --font-mono: 'Share Tech Mono', monospace;
-  --font-display: 'Orbitron', monospace;
-  --font-retro: 'VT323', monospace;
+  --font-display:'Orbitron', monospace;
+  --font-retro:'VT323', monospace;
+  --nav-h: 60px;
+  --section-pad: clamp(60px, 8vw, 100px) clamp(16px, 5vw, 80px);
 }
 
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-html { scroll-behavior: smooth; }
-
+/* =============================================
+   RESET & BASE
+============================================= */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; }
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-mono);
   overflow-x: hidden;
   cursor: none;
+  -webkit-font-smoothing: antialiased;
 }
+img { max-width:100%; display:block; }
+a { color:inherit; text-decoration:none; }
 
-/* CUSTOM CURSOR */
+/* =============================================
+   CUSTOM CURSOR (desktop only)
+============================================= */
 .cursor {
-  position: fixed;
-  width: 20px; height: 20px;
-  border: 1px solid var(--accent);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transition: transform 0.1s, border-color 0.2s;
-  mix-blend-mode: difference;
+  position:fixed; width:20px; height:20px;
+  border:1px solid var(--accent); border-radius:50%;
+  pointer-events:none; z-index:9999;
+  transition:transform .1s, border-color .2s;
+  mix-blend-mode:difference;
+  top:0; left:0;
 }
 .cursor-dot {
-  position: fixed;
-  width: 4px; height: 4px;
-  background: var(--accent);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transform: translate(-50%, -50%);
+  position:fixed; width:4px; height:4px;
+  background:var(--accent); border-radius:50%;
+  pointer-events:none; z-index:9999;
+  transform:translate(-50%,-50%);
+  top:0; left:0;
 }
+@media (hover:none) { .cursor,.cursor-dot { display:none; } body { cursor:auto; } }
 
-/* SCAN LINE OVERLAY */
+/* =============================================
+   GLOBAL OVERLAYS
+============================================= */
 body::before {
-  content: '';
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,255,136,0.01) 2px,
-    rgba(0,255,136,0.01) 4px
-  );
-  pointer-events: none;
-  z-index: 9000;
+  content:''; position:fixed; inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,.01) 2px,rgba(0,255,136,.01) 4px);
+  pointer-events:none; z-index:9000;
 }
-
-/* NOISE TEXTURE */
 body::after {
-  content: '';
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 8999;
-  opacity: 0.4;
+  content:''; position:fixed; inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:8999; opacity:.4;
 }
-
-/* MATRIX RAIN CANVAS */
 #matrix-bg {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  opacity: 0.04;
-  z-index: 0;
+  position:fixed; inset:0; width:100%; height:100%; opacity:.04; z-index:0;
 }
 
-/* NAV */
+/* =============================================
+   PROGRESS BAR
+============================================= */
+.top-progress {
+  position:fixed; top:0; left:0; height:2px;
+  background:var(--accent); z-index:9999;
+  transition:width .1s;
+  box-shadow:0 0 10px var(--accent);
+  width:0%;
+}
+
+/* =============================================
+   NAVIGATION
+============================================= */
 nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 1000;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 40px;
-  background: rgba(3,6,9,0.92);
-  border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(12px);
+  position:fixed; top:0; left:0; right:0; z-index:1000;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:0 clamp(16px, 4vw, 40px);
+  height:var(--nav-h);
+  background:rgba(3,6,9,.95);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(12px);
+  gap:12px;
 }
-
 .nav-logo {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 900;
-  color: var(--accent);
-  letter-spacing: 4px;
-  text-decoration: none;
+  font-family:var(--font-display);
+  font-size:clamp(11px,2vw,14px);
+  font-weight:900; color:var(--accent);
+  letter-spacing:4px; white-space:nowrap;
+  flex-shrink:0;
 }
-.nav-logo span { color: var(--accent3); }
+.nav-logo span { color:var(--accent3); }
 
+/* Hamburger */
+.nav-toggle {
+  display:none; flex-direction:column; gap:5px;
+  cursor:pointer; padding:4px; background:none; border:none;
+  flex-shrink:0;
+}
+.nav-toggle span {
+  display:block; width:22px; height:2px;
+  background:var(--accent); transition:all .3s;
+}
+.nav-toggle.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity:0; }
+.nav-toggle.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+/* Desktop links */
 .nav-links {
-  display: flex;
-  gap: 32px;
-  list-style: none;
+  display:flex; gap:clamp(12px,2.5vw,32px); list-style:none; align-items:center;
 }
 .nav-links a {
-  color: var(--text-dim);
-  text-decoration: none;
-  font-size: 11px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  transition: color 0.2s;
-  position: relative;
+  color:var(--text-dim); font-size:clamp(9px,1.2vw,11px);
+  letter-spacing:2px; text-transform:uppercase; transition:color .2s;
+  position:relative; white-space:nowrap;
 }
-.nav-links a::before {
-  content: '> ';
-  color: var(--accent);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.nav-links a:hover { color: var(--accent); }
-.nav-links a:hover::before { opacity: 1; }
+.nav-links a::before { content:'> '; color:var(--accent); opacity:0; transition:opacity .2s; }
+.nav-links a:hover { color:var(--accent); }
+.nav-links a:hover::before { opacity:1; }
 
 .nav-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  color: var(--text-dim);
+  display:flex; align-items:center; gap:8px;
+  font-size:clamp(8px,1vw,10px); color:var(--text-dim); white-space:nowrap; flex-shrink:0;
 }
 .status-dot {
-  width: 6px; height: 6px;
-  background: var(--accent);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
+  width:6px; height:6px; background:var(--accent); border-radius:50%;
+  animation:pulse 2s infinite; flex-shrink:0;
 }
 @keyframes pulse {
-  0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
-  50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(0,255,136,0); }
+  0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(0,255,136,.4); }
+  50%    { opacity:.6; box-shadow:0 0 0 6px rgba(0,255,136,0); }
 }
 
-/* SECTIONS */
-section {
-  position: relative;
-  z-index: 1;
+/* Mobile menu */
+@media (max-width:768px) {
+  .nav-toggle { display:flex; }
+  .nav-status  { display:none; }
+  .nav-links {
+    position:fixed; top:var(--nav-h); left:0; right:0;
+    background:rgba(3,6,9,.98); border-bottom:1px solid var(--border);
+    flex-direction:column; gap:0; padding:0;
+    max-height:0; overflow:hidden; transition:max-height .35s ease;
+  }
+  .nav-links.open { max-height:400px; }
+  .nav-links li a {
+    display:block; padding:14px 24px;
+    border-bottom:1px solid var(--border);
+    font-size:13px; letter-spacing:3px;
+  }
 }
 
-/* ===== HERO ===== */
-#hero {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  padding: 100px 80px 60px;
-  gap: 60px;
-}
+/* =============================================
+   SECTION UTILITY
+============================================= */
+section { position:relative; z-index:1; }
 
-.hero-left { position: relative; }
-
-.hero-tag {
-  font-size: 10px;
-  letter-spacing: 4px;
-  color: var(--accent);
-  text-transform: uppercase;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.hero-tag::before {
-  content: '';
-  width: 24px; height: 1px;
-  background: var(--accent);
-}
-
-.hero-name {
-  font-family: var(--font-display);
-  font-size: clamp(36px, 5vw, 64px);
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: -1px;
-  margin-bottom: 8px;
-  color: #fff;
-}
-.hero-name .glitch {
-  position: relative;
-  display: inline-block;
-  color: var(--accent);
-  animation: glitch-main 4s infinite;
-}
-@keyframes glitch-main {
-  0%,94%,100% { clip-path: none; transform: none; }
-  95% { clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%); transform: translate(-3px, 0); color: var(--accent3); }
-  97% { clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%); transform: translate(3px, 0); color: var(--accent2); }
-}
-
-.hero-role {
-  font-family: var(--font-retro);
-  font-size: 28px;
-  color: var(--accent2);
-  letter-spacing: 3px;
-  margin-bottom: 32px;
-}
-
-.hero-bio {
-  font-size: 13px;
-  line-height: 1.9;
-  color: var(--text);
-  max-width: 520px;
-  margin-bottom: 40px;
-  border-left: 2px solid var(--accent);
-  padding-left: 20px;
-}
-
-.hero-badges {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 40px;
-}
-.badge {
-  padding: 6px 14px;
-  border: 1px solid;
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  border-radius: 2px;
-}
-.badge-htb { border-color: var(--accent); color: var(--accent); background: rgba(0,255,136,0.05); }
-.badge-thm { border-color: var(--accent2); color: var(--accent2); background: rgba(0,184,255,0.05); }
-.badge-warn { border-color: var(--warn); color: var(--warn); background: rgba(255,153,0,0.05); }
-
-.hero-cta {
-  display: flex;
-  gap: 16px;
-}
-.btn-primary {
-  padding: 12px 28px;
-  background: var(--accent);
-  color: var(--bg);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  border: none;
-  cursor: none;
-  text-decoration: none;
-  display: inline-block;
-  transition: all 0.2s;
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-}
-.btn-primary:hover {
-  background: #fff;
-  transform: translateY(-2px);
-}
-.btn-secondary {
-  padding: 12px 28px;
-  background: transparent;
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  border: 1px solid var(--accent);
-  cursor: none;
-  text-decoration: none;
-  display: inline-block;
-  transition: all 0.2s;
-}
-.btn-secondary:hover {
-  background: rgba(0,255,136,0.08);
-  transform: translateY(-2px);
-}
-
-/* HERO TERMINAL */
-.hero-right { position: relative; }
-
-.terminal-window {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 0 60px rgba(0,255,136,0.06), 0 0 120px rgba(0,184,255,0.03);
-}
-.terminal-bar {
-  background: #0d1f2d;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 1px solid var(--border);
-}
-.term-dot { width: 10px; height: 10px; border-radius: 50%; }
-.term-dot.r { background: #ff5f56; }
-.term-dot.y { background: #ffbd2e; }
-.term-dot.g { background: #27c93f; }
-.terminal-title {
-  margin-left: 8px;
-  font-size: 11px;
-  color: var(--text-dim);
-  letter-spacing: 1px;
-}
-.terminal-body {
-  padding: 20px;
-  font-size: 12px;
-  line-height: 1.8;
-  min-height: 340px;
-  overflow: hidden;
-}
-.t-line { display: flex; gap: 8px; margin-bottom: 2px; opacity: 0; }
-.t-line.show { opacity: 1; }
-.t-prompt { color: var(--accent); flex-shrink: 0; }
-.t-cmd { color: var(--accent2); }
-.t-out { color: var(--text); padding-left: 16px; }
-.t-out.ok { color: var(--accent); }
-.t-out.err { color: var(--accent3); }
-.t-out.warn { color: var(--warn); }
-.t-cursor {
-  display: inline-block;
-  width: 8px; height: 14px;
-  background: var(--accent);
-  animation: blink 1s infinite;
-  vertical-align: middle;
-  margin-left: 2px;
-}
-@keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
-
-/* STATS STRIP */
-.stats-strip {
-  background: var(--panel);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 24px 80px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  z-index: 1;
-  position: relative;
-}
-.stat-item {
-  text-align: center;
-  padding: 16px;
-  border-right: 1px solid var(--border);
-  position: relative;
-}
-.stat-item:last-child { border-right: none; }
-.stat-num {
-  font-family: var(--font-display);
-  font-size: 36px;
-  font-weight: 900;
-  color: var(--accent);
-  display: block;
-  line-height: 1;
-  margin-bottom: 6px;
-}
-.stat-label {
-  font-size: 9px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-/* ===== SECTION WRAPPER ===== */
-.section-wrap {
-  padding: 100px 80px;
-  position: relative;
-}
-.section-wrap.alt-bg { background: var(--bg2); }
+.section-wrap { padding:var(--section-pad); position:relative; }
+.section-wrap.alt-bg { background:var(--bg2); }
 
 .section-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 60px;
+  display:flex; align-items:center; gap:clamp(10px,2vw,20px);
+  margin-bottom:clamp(32px,5vw,60px); flex-wrap:wrap;
 }
 .section-number {
-  font-family: var(--font-retro);
-  font-size: 72px;
-  color: var(--text-muted);
-  line-height: 1;
-  user-select: none;
+  font-family:var(--font-retro); font-size:clamp(48px,8vw,72px);
+  color:var(--text-muted); line-height:1; user-select:none; flex-shrink:0;
 }
-.section-title-block { flex: 1; }
+.section-title-block { flex:1; min-width:160px; }
 .section-label {
-  font-size: 9px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--accent);
-  display: block;
-  margin-bottom: 4px;
+  font-size:clamp(8px,1.2vw,9px); letter-spacing:4px;
+  text-transform:uppercase; color:var(--accent); display:block; margin-bottom:4px;
 }
 .section-title {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 2px;
+  font-family:var(--font-display); font-size:clamp(16px,3vw,28px);
+  font-weight:700; color:#fff; letter-spacing:2px;
 }
 .section-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(to right, var(--border), transparent);
+  flex:1; height:1px; min-width:20px;
+  background:linear-gradient(to right,var(--border),transparent);
 }
 
-/* ===== METHODOLOGY ===== */
+/* =============================================
+   FADE-UP ANIMATION
+============================================= */
+.fade-up { opacity:0; transform:translateY(20px); transition:opacity .6s ease, transform .6s ease; }
+.fade-up.visible { opacity:1; transform:translateY(0); }
+
+/* =============================================
+   HERO
+============================================= */
+#hero {
+  min-height:100vh; padding-top:var(--nav-h);
+  display:grid; grid-template-columns:1fr 1fr;
+  align-items:center;
+  padding:var(--nav-h) clamp(16px,5vw,80px) clamp(40px,6vw,60px);
+  gap:clamp(24px,4vw,60px);
+}
+@media (max-width:900px) {
+  #hero { grid-template-columns:1fr; min-height:auto; padding-top:calc(var(--nav-h) + 24px); }
+  .hero-right { display:none; }
+}
+
+.hero-tag {
+  font-size:clamp(9px,1.5vw,10px); letter-spacing:4px; color:var(--accent);
+  text-transform:uppercase; margin-bottom:12px;
+  display:flex; align-items:center; gap:8px;
+}
+.hero-tag::before { content:''; width:24px; height:1px; background:var(--accent); }
+
+.hero-name {
+  font-family:var(--font-display); font-size:clamp(32px,6vw,64px);
+  font-weight:900; line-height:1; letter-spacing:-1px; margin-bottom:8px; color:#fff;
+}
+.hero-name .glitch {
+  position:relative; display:inline-block; color:var(--accent);
+  animation:glitch-main 4s infinite;
+}
+@keyframes glitch-main {
+  0%,94%,100%{ clip-path:none; transform:none; }
+  95%{ clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%); transform:translate(-3px,0); color:var(--accent3); }
+  97%{ clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%); transform:translate(3px,0);  color:var(--accent2); }
+}
+.hero-role {
+  font-family:var(--font-retro); font-size:clamp(20px,3.5vw,28px);
+  color:var(--accent2); letter-spacing:3px; margin-bottom:clamp(16px,3vw,32px);
+}
+.hero-bio {
+  font-size:clamp(12px,1.6vw,13px); line-height:1.9; color:var(--text);
+  max-width:520px; margin-bottom:clamp(20px,4vw,40px);
+  border-left:2px solid var(--accent); padding-left:20px;
+}
+.hero-badges {
+  display:flex; gap:8px; flex-wrap:wrap; margin-bottom:clamp(20px,4vw,40px);
+}
+.badge {
+  padding:5px 12px; border:1px solid; font-size:clamp(8px,1.2vw,10px);
+  letter-spacing:2px; text-transform:uppercase; border-radius:2px;
+}
+.badge-htb  { border-color:var(--accent);  color:var(--accent);  background:rgba(0,255,136,.05); }
+.badge-thm  { border-color:var(--accent2); color:var(--accent2); background:rgba(0,184,255,.05); }
+.badge-warn { border-color:var(--warn);    color:var(--warn);    background:rgba(255,153,0,.05); }
+
+.hero-cta { display:flex; gap:12px; flex-wrap:wrap; }
+.btn-primary {
+  padding:11px 24px; background:var(--accent); color:var(--bg);
+  font-family:var(--font-mono); font-size:clamp(10px,1.4vw,12px);
+  letter-spacing:2px; text-transform:uppercase; border:none; cursor:pointer;
+  display:inline-block; transition:all .2s;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+}
+.btn-primary:hover { background:#fff; transform:translateY(-2px); }
+.btn-secondary {
+  padding:11px 24px; background:transparent; color:var(--accent);
+  font-family:var(--font-mono); font-size:clamp(10px,1.4vw,12px);
+  letter-spacing:2px; text-transform:uppercase; border:1px solid var(--accent);
+  cursor:pointer; display:inline-block; transition:all .2s;
+}
+.btn-secondary:hover { background:rgba(0,255,136,.08); transform:translateY(-2px); }
+
+/* Terminal */
+.terminal-window {
+  background:var(--panel); border:1px solid var(--border); border-radius:4px; overflow:hidden;
+  box-shadow:0 0 60px rgba(0,255,136,.06),0 0 120px rgba(0,184,255,.03);
+}
+.terminal-bar {
+  background:#0d1f2d; padding:10px 16px; display:flex; align-items:center; gap:8px;
+  border-bottom:1px solid var(--border);
+}
+.term-dot { width:10px; height:10px; border-radius:50%; }
+.term-dot.r{background:#ff5f56}.term-dot.y{background:#ffbd2e}.term-dot.g{background:#27c93f}
+.terminal-title { margin-left:8px; font-size:11px; color:var(--text-dim); letter-spacing:1px; }
+.terminal-body { padding:20px; font-size:12px; line-height:1.8; min-height:320px; overflow:hidden; }
+.t-line { display:flex; gap:8px; margin-bottom:2px; opacity:0; }
+.t-line.show { opacity:1; }
+.t-prompt{color:var(--accent);flex-shrink:0}
+.t-cmd{color:var(--accent2)}
+.t-out{color:var(--text);padding-left:16px}
+.t-out.ok{color:var(--accent)}.t-out.err{color:var(--accent3)}.t-out.warn{color:var(--warn)}
+.t-cursor {
+  display:inline-block; width:8px; height:14px; background:var(--accent);
+  animation:blink 1s infinite; vertical-align:middle; margin-left:2px;
+}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+
+/* Scroll hint */
+.scroll-hint {
+  position:absolute; bottom:clamp(16px,4vw,40px); left:50%; transform:translateX(-50%);
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase;
+  animation:float 2s ease-in-out infinite;
+}
+.scroll-hint::after { content:'↓'; font-size:16px; color:var(--accent); }
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+/* =============================================
+   STATS STRIP
+============================================= */
+.stats-strip {
+  background:var(--panel); border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  padding:clamp(16px,3vw,24px) clamp(16px,5vw,80px);
+  display:grid; grid-template-columns:repeat(4,1fr); gap:0; z-index:1; position:relative;
+}
+@media (max-width:600px) { .stats-strip { grid-template-columns:repeat(2,1fr); } }
+.stat-item {
+  text-align:center; padding:clamp(12px,2vw,16px);
+  border-right:1px solid var(--border);
+}
+.stat-item:last-child { border-right:none; }
+@media (max-width:600px) {
+  .stat-item:nth-child(2) { border-right:none; }
+  .stat-item:nth-child(3) { border-right:1px solid var(--border); }
+  .stat-item:nth-child(3),
+  .stat-item:nth-child(4) { border-top:1px solid var(--border); }
+}
+.stat-num {
+  font-family:var(--font-display); font-size:clamp(24px,4vw,36px);
+  font-weight:900; color:var(--accent); display:block; line-height:1; margin-bottom:6px;
+}
+.stat-label { font-size:clamp(7px,1.2vw,9px); letter-spacing:3px; text-transform:uppercase; color:var(--text-dim); }
+
+/* =============================================
+   METHODOLOGY (01)
+============================================= */
 .methodology-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0;
-  border: 1px solid var(--border);
+  display:grid; grid-template-columns:repeat(5,1fr); gap:0; border:1px solid var(--border);
 }
-.method-step {
-  padding: 32px 20px;
-  border-right: 1px solid var(--border);
-  position: relative;
-  transition: background 0.3s;
-  cursor: none;
-}
-.method-step:last-child { border-right: none; }
-.method-step:hover { background: rgba(0,255,136,0.03); }
-.method-step::after {
-  content: '→';
-  position: absolute;
-  right: -14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--accent);
-  font-size: 18px;
-  z-index: 2;
-  background: var(--bg);
-  padding: 0 2px;
-}
-.method-step:last-child::after { display: none; }
-.method-num {
-  font-family: var(--font-retro);
-  font-size: 48px;
-  color: var(--text-muted);
-  line-height: 1;
-  margin-bottom: 8px;
-}
-.method-name {
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-.method-tools {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.method-tool {
-  font-size: 11px;
-  color: var(--text-dim);
-  padding: 3px 0;
-  border-bottom: 1px dotted var(--border);
-}
-.method-tool::before { content: '├ '; color: var(--accent2); }
-.method-tool:last-child { border-bottom: none; }
-.method-tool:last-child::before { content: '└ '; }
+@media (max-width:900px)  { .methodology-grid { grid-template-columns:repeat(3,1fr); } }
+@media (max-width:560px)  { .methodology-grid { grid-template-columns:1fr 1fr; } }
+@media (max-width:380px)  { .methodology-grid { grid-template-columns:1fr; } }
 
-/* ===== SKILLS ===== */
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
+.method-step {
+  padding:clamp(16px,3vw,32px) clamp(12px,2vw,20px);
+  border-right:1px solid var(--border); border-bottom:1px solid var(--border);
+  position:relative; transition:background .3s; cursor:default;
 }
+.method-step:hover { background:rgba(0,255,136,.03); }
+/* Remove right border on last in each row dynamically via nth — just remove all right on mobile */
+@media (max-width:560px) {
+  .method-step:nth-child(even) { border-right:none; }
+}
+@media (min-width:561px) and (max-width:900px) {
+  .method-step:nth-child(3n) { border-right:none; }
+}
+@media (min-width:901px) {
+  .method-step:last-child { border-right:none; }
+}
+.method-num { font-family:var(--font-retro); font-size:clamp(32px,5vw,48px); color:var(--text-muted); line-height:1; margin-bottom:8px; }
+.method-name { font-family:var(--font-display); font-size:clamp(9px,1.2vw,11px); font-weight:700; color:var(--accent); letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+.method-tools { display:flex; flex-direction:column; gap:4px; }
+.method-tool { font-size:clamp(10px,1.3vw,11px); color:var(--text-dim); padding:3px 0; border-bottom:1px dotted var(--border); }
+.method-tool::before { content:'├ '; color:var(--accent2); }
+.method-tool:last-child { border-bottom:none; }
+.method-tool:last-child::before { content:'└ '; }
+
+/* =============================================
+   SKILLS (02)
+============================================= */
+.skills-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:2px; }
+@media (max-width:700px) { .skills-grid { grid-template-columns:1fr; } }
+
 .skill-category {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  padding: 28px;
-  transition: border-color 0.3s;
+  background:var(--panel); border:1px solid var(--border);
+  padding:clamp(16px,3vw,28px); transition:border-color .3s;
 }
-.skill-category:hover { border-color: var(--accent); }
+.skill-category:hover { border-color:var(--accent); }
 .skill-cat-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border);
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:clamp(16px,3vw,24px); padding-bottom:12px; border-bottom:1px solid var(--border);
 }
 .skill-cat-icon {
-  width: 32px; height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,255,136,0.1);
-  border: 1px solid rgba(0,255,136,0.2);
-  font-size: 14px;
-  color: var(--accent);
-  flex-shrink: 0;
+  width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  background:rgba(0,255,136,.1); border:1px solid rgba(0,255,136,.2);
+  font-size:14px; color:var(--accent); flex-shrink:0;
 }
-.skill-cat-name {
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--accent2);
-  text-transform: uppercase;
-}
-.skill-items { display: flex; flex-direction: column; gap: 10px; }
-.skill-item {}
-.skill-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
-}
-.skill-item-name { font-size: 12px; color: var(--text); }
-.skill-item-level { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
-.skill-bar {
-  height: 2px;
-  background: var(--dim);
-  position: relative;
-  overflow: hidden;
-}
+.skill-cat-name { font-family:var(--font-display); font-size:clamp(9px,1.2vw,11px); font-weight:700; letter-spacing:2px; color:var(--accent2); text-transform:uppercase; }
+.skill-items { display:flex; flex-direction:column; gap:10px; }
+.skill-item-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; flex-wrap:wrap; gap:4px; }
+.skill-item-name { font-size:clamp(11px,1.5vw,12px); color:var(--text); }
+.skill-item-level { font-size:clamp(9px,1.2vw,10px); color:var(--text-dim); letter-spacing:1px; }
+.skill-bar { height:2px; background:var(--dim); position:relative; overflow:hidden; }
 .skill-bar-fill {
-  height: 100%;
-  background: linear-gradient(to right, var(--accent), var(--accent2));
-  width: 0;
-  transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+  height:100%; background:linear-gradient(to right,var(--accent),var(--accent2));
+  width:0; transition:width 1.2s cubic-bezier(.4,0,.2,1); position:relative;
 }
 .skill-bar-fill::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px; height: 4px;
-  background: var(--accent);
-  border-radius: 50%;
-  box-shadow: 0 0 6px var(--accent);
+  content:''; position:absolute; right:0; top:50%; transform:translateY(-50%);
+  width:4px; height:4px; background:var(--accent); border-radius:50%; box-shadow:0 0 6px var(--accent);
 }
 
-/* ===== OWASP ===== */
-.owasp-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
-}
+/* =============================================
+   OWASP (03)
+============================================= */
+.owasp-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:2px; }
+@media (max-width:700px) { .owasp-grid { grid-template-columns:1fr; } }
+
 .owasp-item {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  padding: 24px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color 0.3s, background 0.3s;
-  cursor: none;
+  background:var(--panel); border:1px solid var(--border); padding:clamp(16px,3vw,24px);
+  position:relative; overflow:hidden; transition:border-color .3s,background .3s;
 }
-.owasp-item:hover {
-  border-color: var(--accent3);
-  background: rgba(255,51,102,0.02);
-}
+.owasp-item:hover { border-color:var(--accent3); background:rgba(255,51,102,.02); }
 .owasp-item::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px; height: 0;
-  background: var(--accent3);
-  transition: height 0.3s;
+  content:''; position:absolute; top:0; left:0; width:3px; height:0;
+  background:var(--accent3); transition:height .3s;
 }
-.owasp-item:hover::before { height: 100%; }
-.owasp-rank {
-  font-family: var(--font-retro);
-  font-size: 40px;
-  color: var(--text-muted);
-  line-height: 1;
-  float: right;
-  margin-left: 12px;
-}
-.owasp-id {
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: var(--accent3);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  display: block;
-}
-.owasp-name {
-  font-family: var(--font-display);
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-}
-.owasp-desc { font-size: 11px; line-height: 1.7; color: var(--text-dim); margin-bottom: 10px; }
-.owasp-exploit {
-  font-size: 11px;
-  color: var(--accent2);
-  padding: 6px 10px;
-  background: rgba(0,184,255,0.04);
-  border-left: 2px solid var(--accent2);
-}
-.owasp-exploit::before { content: '⚡ EXPLOIT: '; color: var(--warn); font-size: 10px; }
+.owasp-item:hover::before { height:100%; }
+.owasp-rank { font-family:var(--font-retro); font-size:clamp(28px,5vw,40px); color:var(--text-muted); line-height:1; float:right; margin-left:12px; }
+.owasp-id { font-size:clamp(8px,1.2vw,9px); letter-spacing:3px; color:var(--accent3); text-transform:uppercase; margin-bottom:4px; display:block; }
+.owasp-name { font-family:var(--font-display); font-size:clamp(10px,1.5vw,12px); font-weight:700; color:#fff; letter-spacing:1px; margin-bottom:10px; }
+.owasp-desc { font-size:clamp(10px,1.3vw,11px); line-height:1.7; color:var(--text-dim); margin-bottom:10px; }
+.owasp-exploit { font-size:clamp(10px,1.3vw,11px); color:var(--accent2); padding:6px 10px; background:rgba(0,184,255,.04); border-left:2px solid var(--accent2); }
+.owasp-exploit::before { content:'⚡ EXPLOIT: '; color:var(--warn); font-size:clamp(9px,1.2vw,10px); }
 
-/* ===== PROJECTS ===== */
-.projects-list { display: flex; flex-direction: column; gap: 2px; }
-.project-item {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  overflow: hidden;
-  transition: border-color 0.3s;
+/* =============================================
+   ★★★ NEW: EXPERTISE SECTION (04) ★★★
+============================================= */
+/* --- Certs Grid --- */
+.certs-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap:clamp(8px,2vw,16px);
+  margin-bottom:clamp(40px,6vw,64px);
 }
-.project-item:hover { border-color: var(--accent2); }
-.project-header {
-  padding: 20px 28px;
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  align-items: center;
-  gap: 20px;
-  cursor: none;
+.cert-card {
+  background:var(--panel); border:1px solid var(--border);
+  padding:clamp(16px,2.5vw,24px); position:relative; overflow:hidden;
+  transition:border-color .3s, transform .3s, box-shadow .3s;
+  display:flex; flex-direction:column; gap:12px;
 }
-.project-header:hover { background: rgba(0,184,255,0.02); }
-.project-id {
-  font-family: var(--font-retro);
-  font-size: 28px;
-  color: var(--text-muted);
-  min-width: 40px;
+.cert-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(to right, var(--accent), var(--accent2));
+  transform:scaleX(0); transform-origin:left; transition:transform .4s;
 }
-.project-name-block {}
-.project-name {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--accent2);
-  letter-spacing: 1px;
-  margin-bottom: 2px;
+.cert-card:hover::before { transform:scaleX(1); }
+.cert-card:hover { border-color:var(--accent); transform:translateY(-3px); box-shadow:0 8px 32px rgba(0,255,136,.08); }
+.cert-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:44px; height:44px;
+  background:rgba(0,255,136,.06); border:1px solid rgba(0,255,136,.2); border-radius:4px;
+  font-size:20px; flex-shrink:0;
 }
-.project-subtitle { font-size: 11px; color: var(--text-dim); }
-.project-tags { display: flex; gap: 6px; }
-.tag {
-  font-size: 9px;
-  padding: 3px 8px;
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  letter-spacing: 1px;
-  text-transform: uppercase;
+.cert-title {
+  font-family:var(--font-display); font-size:clamp(10px,1.5vw,12px);
+  font-weight:700; color:var(--accent); letter-spacing:1px; line-height:1.3;
 }
-.tag.critical { border-color: var(--accent3); color: var(--accent3); }
-.tag.high { border-color: var(--warn); color: var(--warn); }
-.tag.web { border-color: var(--accent2); color: var(--accent2); }
-.tag.net { border-color: var(--accent); color: var(--accent); }
-.project-toggle {
-  color: var(--accent);
-  font-size: 16px;
-  transition: transform 0.3s;
-  min-width: 20px;
-  text-align: center;
+.cert-org { font-size:clamp(9px,1.2vw,10px); color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; }
+.cert-status {
+  margin-top:auto; display:inline-flex; align-items:center; gap:6px;
+  font-size:clamp(9px,1.2vw,10px); letter-spacing:1px; padding:4px 10px;
+  border-radius:2px;
 }
-.project-item.open .project-toggle { transform: rotate(45deg); }
-.project-body {
-  padding: 0 28px;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease, padding 0.3s;
-}
-.project-item.open .project-body {
-  max-height: 600px;
-  padding: 0 28px 28px;
-}
-.project-detail-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-.project-detail { border: 1px solid var(--border); padding: 16px; }
-.detail-label {
-  font-size: 9px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 6px;
-  display: block;
-}
-.detail-val { font-size: 12px; color: var(--text); line-height: 1.7; }
-.attack-chain {
-  grid-column: 1 / -1;
-  border-color: var(--accent2);
-}
-.chain-steps {
-  display: flex;
-  gap: 0;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-.chain-step {
-  background: rgba(0,184,255,0.06);
-  border: 1px solid rgba(0,184,255,0.2);
-  padding: 6px 12px;
-  font-size: 11px;
-  color: var(--accent2);
-  position: relative;
-}
-.chain-step:not(:last-child)::after {
-  content: '→';
-  position: absolute;
-  right: -12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--accent);
-  font-size: 12px;
-  z-index: 1;
-}
-.chain-step:not(:last-child) { margin-right: 20px; }
+.cert-status.active   { color:var(--accent);  background:rgba(0,255,136,.06); border:1px solid rgba(0,255,136,.2); }
+.cert-status.progress { color:var(--warn);    background:rgba(255,153,0,.06); border:1px solid rgba(255,153,0,.2); }
+.cert-status.complete { color:var(--accent2); background:rgba(0,184,255,.06); border:1px solid rgba(0,184,255,.2); }
+.cert-status::before { content:''; width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.cert-status.active::before   { background:var(--accent);  animation:pulse 2s infinite; }
+.cert-status.progress::before { background:var(--warn); }
+.cert-status.complete::before { background:var(--accent2); }
 
-/* ===== PENTEST REPORT ===== */
-.report-container {
-  border: 1px solid var(--accent3);
-  background: var(--panel);
-  overflow: hidden;
+/* --- Achievements --- */
+.achievements-header {
+  font-family:var(--font-display); font-size:clamp(11px,1.6vw,13px);
+  color:var(--accent2); letter-spacing:3px; text-transform:uppercase;
+  margin-bottom:clamp(16px,3vw,24px); display:flex; align-items:center; gap:12px;
 }
+.achievements-header::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.achievements-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap:clamp(8px,2vw,12px);
+  margin-bottom:clamp(40px,6vw,64px);
+}
+.achievement-item {
+  background:var(--panel); border:1px solid var(--border);
+  padding:clamp(14px,2vw,20px); display:flex; gap:clamp(12px,2vw,16px);
+  align-items:flex-start; transition:border-color .3s;
+  position:relative; overflow:hidden;
+}
+.achievement-item::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(to right, var(--accent3), transparent);
+  transform:scaleX(0); transform-origin:left; transition:transform .4s;
+}
+.achievement-item:hover::after { transform:scaleX(1); }
+.achievement-item:hover { border-color:var(--accent3); }
+.achievement-icon { font-size:clamp(18px,3vw,24px); flex-shrink:0; line-height:1; margin-top:2px; }
+.achievement-body {}
+.achievement-title {
+  font-family:var(--font-display); font-size:clamp(10px,1.5vw,12px);
+  font-weight:700; color:#fff; letter-spacing:1px; margin-bottom:6px;
+}
+.achievement-desc { font-size:clamp(10px,1.3vw,11px); line-height:1.7; color:var(--text-dim); }
+.achievement-tag {
+  display:inline-block; margin-top:8px; padding:3px 8px;
+  font-size:clamp(8px,1.1vw,9px); letter-spacing:2px; text-transform:uppercase;
+  border:1px solid; border-radius:2px;
+}
+.tag-red  { border-color:var(--accent3); color:var(--accent3); }
+.tag-blue { border-color:var(--accent2); color:var(--accent2); }
+.tag-grn  { border-color:var(--accent);  color:var(--accent); }
+.tag-warn { border-color:var(--warn);    color:var(--warn); }
+
+/* --- Platform Stats --- */
+.platform-header {
+  font-family:var(--font-display); font-size:clamp(11px,1.6vw,13px);
+  color:var(--accent2); letter-spacing:3px; text-transform:uppercase;
+  margin-bottom:clamp(16px,3vw,24px); display:flex; align-items:center; gap:12px;
+}
+.platform-header::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.platforms-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap:clamp(8px,2vw,12px);
+}
+.platform-card {
+  background:var(--panel); border:1px solid var(--border);
+  padding:clamp(16px,2.5vw,24px); text-align:center;
+  transition:border-color .3s, background .3s;
+  position:relative; overflow:hidden;
+}
+.platform-card:hover { border-color:var(--accent2); background:rgba(0,184,255,.02); }
+.platform-logo {
+  font-family:var(--font-display); font-size:clamp(14px,2.5vw,18px);
+  font-weight:900; color:var(--accent2); letter-spacing:2px;
+  margin-bottom:12px; display:block;
+}
+.platform-rank {
+  font-family:var(--font-retro); font-size:clamp(28px,5vw,40px);
+  color:var(--accent); line-height:1; display:block; margin-bottom:4px;
+}
+.platform-label { font-size:clamp(8px,1.2vw,9px); letter-spacing:3px; text-transform:uppercase; color:var(--text-dim); display:block; margin-bottom:12px; }
+.platform-detail { font-size:clamp(10px,1.3vw,11px); color:var(--text-dim); line-height:1.8; }
+.platform-detail span { color:var(--text); }
+
+/* Expertise terminal block */
+.expertise-terminal {
+  margin-top:clamp(32px,5vw,56px); background:var(--panel);
+  border:1px solid var(--border); overflow:hidden;
+}
+.expertise-term-body { padding:clamp(16px,3vw,24px); font-size:clamp(11px,1.4vw,12px); line-height:2; }
+.e-line { display:flex; gap:8px; flex-wrap:wrap; }
+.e-key { color:var(--accent); flex-shrink:0; min-width:120px; }
+.e-val { color:var(--text); }
+.e-val.hi { color:var(--accent2); }
+
+/* =============================================
+   PENTEST REPORT (05)
+============================================= */
+.report-container { border:1px solid var(--accent3); background:var(--panel); overflow:hidden; }
 .report-header {
-  background: rgba(255,51,102,0.08);
-  padding: 20px 28px;
-  border-bottom: 1px solid var(--accent3);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  background:rgba(255,51,102,.08); padding:clamp(14px,3vw,20px) clamp(16px,3vw,28px);
+  border-bottom:1px solid var(--accent3);
+  display:flex; justify-content:space-between; align-items:flex-start;
+  gap:16px; flex-wrap:wrap;
 }
-.report-title {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--accent3);
-  letter-spacing: 2px;
-}
-.report-meta { font-size: 10px; color: var(--text-dim); text-align: right; }
-.report-body { padding: 28px; }
-.report-grid {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 0;
-}
-.report-row {
-  display: contents;
-}
+.report-title { font-family:var(--font-display); font-size:clamp(11px,1.8vw,14px); font-weight:700; color:var(--accent3); letter-spacing:2px; }
+.report-meta { font-size:clamp(9px,1.2vw,10px); color:var(--text-dim); text-align:right; line-height:1.8; }
+.report-body { padding:clamp(16px,3vw,28px); overflow-x:auto; }
+.report-grid { display:grid; grid-template-columns:clamp(120px,15vw,160px) 1fr; gap:0; min-width:280px; }
 .report-key {
-  padding: 10px 16px 10px 0;
-  font-size: 10px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--accent);
-  border-bottom: 1px dotted var(--border);
-  display: flex;
-  align-items: flex-start;
-  padding-top: 12px;
+  padding:10px clamp(8px,2vw,16px) 10px 0;
+  font-size:clamp(8px,1.2vw,10px); letter-spacing:2px; text-transform:uppercase;
+  color:var(--accent); border-bottom:1px dotted var(--border);
+  display:flex; align-items:flex-start; padding-top:12px;
 }
 .report-val {
-  padding: 10px 0;
-  font-size: 12px;
-  color: var(--text);
-  line-height: 1.7;
-  border-bottom: 1px dotted var(--border);
+  padding:10px 0; font-size:clamp(11px,1.5vw,12px); color:var(--text);
+  line-height:1.7; border-bottom:1px dotted var(--border);
 }
-.report-val.critical { color: var(--accent3); font-family: var(--font-display); font-size: 11px; }
-.report-val.high { color: var(--warn); }
-.severity-bar {
-  display: inline-flex;
-  gap: 3px;
-  align-items: center;
-  margin-right: 8px;
-}
-.sev-dot {
-  width: 8px; height: 8px;
-  background: var(--accent3);
-  border-radius: 50%;
-}
-.sev-dot.empty { background: var(--dim); }
+.report-val.critical { color:var(--accent3); font-family:var(--font-display); font-size:clamp(10px,1.4vw,11px); }
+.report-val.high { color:var(--warn); }
+.severity-bar { display:inline-flex; gap:3px; align-items:center; margin-right:8px; }
+.sev-dot { width:8px; height:8px; background:var(--accent3); border-radius:50%; }
+.sev-dot.empty { background:var(--dim); }
 .poc-block {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  padding: 16px;
-  font-size: 11px;
-  color: var(--accent2);
-  line-height: 1.9;
-  margin-top: 4px;
-  white-space: pre-wrap;
+  background:var(--bg); border:1px solid var(--border); padding:clamp(10px,2vw,16px);
+  font-size:clamp(10px,1.3vw,11px); color:var(--accent2); line-height:1.9; margin-top:4px;
+  white-space:pre-wrap; word-break:break-all; overflow-x:auto;
 }
-.poc-block .comment { color: var(--text-dim); }
-.poc-block .keyword { color: var(--accent3); }
-.poc-block .string { color: var(--accent); }
+.poc-block .comment { color:var(--text-dim); }
+.poc-block .keyword { color:var(--accent3); }
+.poc-block .string  { color:var(--accent); }
 
-/* ===== CONTACT ===== */
-#contact {
-  padding: 100px 80px;
-  position: relative;
-}
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: start;
-}
-.contact-left {}
+/* =============================================
+   CONTACT (06)
+============================================= */
+.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:clamp(24px,5vw,60px); align-items:start; }
+@media (max-width:760px) { .contact-grid { grid-template-columns:1fr; } }
+
 .contact-intro {
-  font-size: 13px;
-  line-height: 1.9;
-  color: var(--text);
-  margin-bottom: 32px;
-  border-left: 2px solid var(--accent3);
-  padding-left: 20px;
+  font-size:clamp(12px,1.6vw,13px); line-height:1.9; color:var(--text);
+  margin-bottom:clamp(20px,4vw,32px);
+  border-left:2px solid var(--accent3); padding-left:20px;
 }
-.service-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 40px;
-}
+.service-list { display:flex; flex-direction:column; gap:10px; margin-bottom:clamp(24px,4vw,40px); }
 .service-item {
-  padding: 14px 18px;
-  border: 1px solid var(--border);
-  background: var(--panel);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: border-color 0.2s, background 0.2s;
+  padding:clamp(10px,2vw,14px) clamp(12px,2vw,18px); border:1px solid var(--border);
+  background:var(--panel); display:flex; align-items:center; gap:12px;
+  transition:border-color .2s, background .2s; flex-wrap:wrap;
 }
-.service-item:hover {
-  border-color: var(--accent);
-  background: rgba(0,255,136,0.03);
-}
-.service-icon { color: var(--accent); font-size: 16px; flex-shrink: 0; }
-.service-name { font-size: 12px; color: var(--text); }
-.service-desc { font-size: 10px; color: var(--text-dim); margin-left: auto; }
-
+.service-item:hover { border-color:var(--accent); background:rgba(0,255,136,.03); }
+.service-icon { color:var(--accent); font-size:16px; flex-shrink:0; }
+.service-name { font-size:clamp(11px,1.5vw,12px); color:var(--text); flex:1; }
+.service-desc { font-size:clamp(9px,1.2vw,10px); color:var(--text-dim); }
 .email-block {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  border: 1px solid var(--accent);
-  background: rgba(0,255,136,0.03);
+  display:flex; align-items:center; gap:16px; padding:clamp(14px,3vw,20px);
+  border:1px solid var(--accent); background:rgba(0,255,136,.03); flex-wrap:wrap;
 }
-.email-label { font-size: 9px; letter-spacing: 3px; color: var(--text-dim); display: block; margin-bottom: 4px; }
+.email-label { font-size:9px; letter-spacing:3px; color:var(--text-dim); display:block; margin-bottom:4px; }
 .email-addr {
-  font-family: var(--font-display);
-  font-size: 13px;
-  color: var(--accent);
-  text-decoration: none;
-  letter-spacing: 1px;
+  font-family:var(--font-display); font-size:clamp(11px,1.8vw,13px);
+  color:var(--accent); letter-spacing:1px;
 }
-.email-addr:hover { color: #fff; }
+.email-addr:hover { color:#fff; }
+.contact-terminal { background:var(--panel); border:1px solid var(--border); overflow:hidden; }
+.contact-term-body { padding:clamp(16px,3vw,24px); font-size:clamp(11px,1.4vw,12px); line-height:1.9; }
 
-.contact-right {}
-.contact-terminal {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  overflow: hidden;
-}
-.contact-term-body {
-  padding: 24px;
-  font-size: 12px;
-  line-height: 1.9;
-}
-
-/* ===== FOOTER ===== */
+/* =============================================
+   FOOTER
+============================================= */
 footer {
-  border-top: 1px solid var(--border);
-  padding: 24px 80px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 10px;
-  color: var(--text-dim);
-  letter-spacing: 1px;
-  position: relative;
-  z-index: 1;
+  border-top:1px solid var(--border);
+  padding:clamp(16px,3vw,24px) clamp(16px,5vw,80px);
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+  font-size:clamp(8px,1.2vw,10px); color:var(--text-dim); letter-spacing:1px;
+  position:relative; z-index:1;
 }
 
-/* GLITCH TEXT UTILITY */
-.glitch-text {
-  position: relative;
-  display: inline-block;
-}
-.glitch-text::before,
-.glitch-text::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
+/* =============================================
+   GLITCH TEXT
+============================================= */
+.glitch-text { position:relative; display:inline-block; }
+.glitch-text::before,.glitch-text::after {
+  content:attr(data-text); position:absolute; top:0; left:0; width:100%; height:100%;
 }
 .glitch-text::before {
-  color: var(--accent3);
-  animation: glitch1 3.5s infinite;
-  clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
-  transform: translateX(-2px);
+  color:var(--accent3); animation:glitch1 3.5s infinite;
+  clip-path:polygon(0 30%,100% 30%,100% 50%,0 50%); transform:translateX(-2px);
 }
 .glitch-text::after {
-  color: var(--accent2);
-  animation: glitch2 3.5s infinite;
-  clip-path: polygon(0 65%, 100% 65%, 100% 80%, 0 80%);
-  transform: translateX(2px);
+  color:var(--accent2); animation:glitch2 3.5s infinite;
+  clip-path:polygon(0 65%,100% 65%,100% 80%,0 80%); transform:translateX(2px);
 }
-@keyframes glitch1 {
-  0%,90%,100% { opacity: 0; } 92%,94% { opacity: 1; }
-}
-@keyframes glitch2 {
-  0%,88%,100% { opacity: 0; } 91%,93% { opacity: 1; }
-}
+@keyframes glitch1{0%,90%,100%{opacity:0}92%,94%{opacity:1}}
+@keyframes glitch2{0%,88%,100%{opacity:0}91%,93%{opacity:1}}
 
-/* SCROLL INDICATOR */
-.scroll-hint {
-  position: absolute;
-  bottom: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  animation: float 2s ease-in-out infinite;
-}
-.scroll-hint::after {
-  content: '↓';
-  font-size: 16px;
-  color: var(--accent);
-}
-@keyframes float {
-  0%,100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(6px); }
-}
-
-/* ANIMATED BORDER CORNER DECORATION */
-.corner-decor {
-  position: absolute;
-  width: 20px; height: 20px;
-}
-.corner-decor.tl { top: 0; left: 0; border-top: 2px solid var(--accent); border-left: 2px solid var(--accent); }
-.corner-decor.tr { top: 0; right: 0; border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
-.corner-decor.bl { bottom: 0; left: 0; border-bottom: 2px solid var(--accent); border-left: 2px solid var(--accent); }
-.corner-decor.br { bottom: 0; right: 0; border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
-
-/* RECON SCANNER ANIMATION */
-.scanner-line {
-  position: absolute;
-  left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(to right, transparent, var(--accent2), transparent);
-  animation: scan 3s linear infinite;
-  opacity: 0.4;
-}
-@keyframes scan {
-  0% { top: 0; }
-  100% { top: 100%; }
-}
-
-/* PROGRESS / LOADING BAR */
-.top-progress {
-  position: fixed;
-  top: 0; left: 0;
-  height: 2px;
-  background: var(--accent);
-  z-index: 9999;
-  transition: width 0.1s;
-  box-shadow: 0 0 10px var(--accent);
-}
-
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-  #hero { grid-template-columns: 1fr; padding: 100px 40px 60px; }
-  .stats-strip { grid-template-columns: repeat(2,1fr); padding: 24px 40px; }
-  .section-wrap { padding: 80px 40px; }
-  .methodology-grid { grid-template-columns: 1fr 1fr; }
-  .method-step::after { display: none; }
-  .skills-grid { grid-template-columns: 1fr; }
-  .owasp-grid { grid-template-columns: 1fr; }
-  .contact-grid { grid-template-columns: 1fr; }
-  nav { padding: 12px 24px; }
-  .nav-links { gap: 16px; }
-  footer { padding: 24px 40px; }
-}
-
-/* FADE-IN ANIMATION */
-.fade-up {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-.fade-up.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
+/* =============================================
+   UTILITY
+============================================= */
+.visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
 </style>
 </head>
 <body>
 
 <div class="top-progress" id="topProgress"></div>
-<canvas id="matrix-bg"></canvas>
-<div class="cursor" id="cursor"></div>
-<div class="cursor-dot" id="cursorDot"></div>
+<canvas id="matrix-bg" aria-hidden="true"></canvas>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
 
-<!-- NAV -->
-<nav>
+<!-- =============================================
+     NAVIGATION
+============================================= -->
+<nav role="navigation" aria-label="Main navigation">
   <a href="#hero" class="nav-logo">XOP<span>//</span>SEC</a>
-  <ul class="nav-links">
-    <li><a href="#methodology">Method</a></li>
-    <li><a href="#skills">Skills</a></li>
-    <li><a href="#owasp">OWASP</a></li>
-    <li><a href="#projects">Projects</a></li>
-    <li><a href="#report">Report</a></li>
-    <li><a href="#contact">Contact</a></li>
+
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#methodology" onclick="closeMenu()">Method</a></li>
+    <li><a href="#skills"      onclick="closeMenu()">Skills</a></li>
+    <li><a href="#owasp"       onclick="closeMenu()">OWASP</a></li>
+    <li><a href="#expertise"   onclick="closeMenu()">Expertise</a></li>
+    <li><a href="#report"      onclick="closeMenu()">Report</a></li>
+    <li><a href="#contact"     onclick="closeMenu()">Contact</a></li>
   </ul>
-  <div class="nav-status">
+
+  <div class="nav-status" aria-live="polite">
     <div class="status-dot"></div>
-    <span>AVAILABLE FOR ENGAGEMENTS</span>
+    <span>AVAILABLE</span>
   </div>
 </nav>
 
-<!-- HERO -->
-<section id="hero">
+<!-- =============================================
+     HERO
+============================================= -->
+<section id="hero" aria-label="Introduction">
   <div class="hero-left fade-up">
-    <div class="hero-tag">Penetration Tester & Security Researcher</div>
+    <div class="hero-tag">Penetration Tester &amp; Security Researcher</div>
     <h1 class="hero-name">
-      <span class="glitch glitch-text" data-text="MOUFEZ">MOUFEZ</span><br>
+      <span class="glitch glitch-text" data-text="MOUFEZ">MOUFEZ</span>
     </h1>
     <div class="hero-role">[ RED TEAM OPERATOR ]</div>
     <p class="hero-bio">
@@ -1053,47 +727,47 @@ footer {
       <span class="badge badge-warn">OSCP Prep</span>
     </div>
     <div class="hero-cta">
-      <a href="#contact" class="btn-primary">Engage Services</a>
+      <a href="#contact"     class="btn-primary">Engage Services</a>
       <a href="#methodology" class="btn-secondary">View Methodology</a>
     </div>
   </div>
 
-  <div class="hero-right fade-up" style="transition-delay:0.2s">
+  <div class="hero-right fade-up" style="transition-delay:.2s">
     <div class="terminal-window">
       <div class="terminal-bar">
-        <div class="term-dot r"></div>
-        <div class="term-dot y"></div>
-        <div class="term-dot g"></div>
-        <span class="terminal-title">kali@mk-labs ~ operator-profile.sh</span>
+        <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
+        <span class="terminal-title">kali@xopsec ~ operator-profile.sh</span>
       </div>
       <div class="terminal-body" id="heroTerminal"></div>
     </div>
   </div>
 
-  <div class="scroll-hint">Scroll</div>
+  <div class="scroll-hint" aria-hidden="true">Scroll</div>
 </section>
 
 <!-- STATS -->
-<div class="stats-strip">
+<div class="stats-strip" role="region" aria-label="Key statistics">
   <div class="stat-item fade-up">
     <span class="stat-num" data-target="100">0</span>
     <span class="stat-label">Machines Pwned</span>
   </div>
-  <div class="stat-item fade-up" style="transition-delay:0.1s">
+  <div class="stat-item fade-up" style="transition-delay:.1s">
     <span class="stat-num" data-target="2">0</span>
-    <span class="stat-label">Real Vulns Discovered</span>
+    <span class="stat-label">Real Vulns Found</span>
   </div>
-  <div class="stat-item fade-up" style="transition-delay:0.2s">
+  <div class="stat-item fade-up" style="transition-delay:.2s">
     <span class="stat-num" data-target="4">0</span>
     <span class="stat-label">Attack Domains</span>
   </div>
-  <div class="stat-item fade-up" style="transition-delay:0.3s">
+  <div class="stat-item fade-up" style="transition-delay:.3s">
     <span class="stat-num" data-target="5">0</span>
     <span class="stat-label">Custom Tools Built</span>
   </div>
 </div>
 
-<!-- METHODOLOGY -->
+<!-- =============================================
+     01 METHODOLOGY
+============================================= -->
 <section id="methodology" class="section-wrap alt-bg">
   <div class="section-header fade-up">
     <span class="section-number">01</span>
@@ -1101,7 +775,7 @@ footer {
       <span class="section-label">Operational Framework</span>
       <h2 class="section-title">ATTACK METHODOLOGY</h2>
     </div>
-    <div class="section-line"></div>
+    <div class="section-line" aria-hidden="true"></div>
   </div>
 
   <div class="methodology-grid fade-up">
@@ -1163,22 +837,24 @@ footer {
   </div>
 </section>
 
-<!-- SKILLS -->
+<!-- =============================================
+     02 SKILLS
+============================================= -->
 <section id="skills" class="section-wrap">
   <div class="section-header fade-up">
     <span class="section-number">02</span>
     <div class="section-title-block">
       <span class="section-label">Technical Arsenal</span>
-      <h2 class="section-title">SKILLS & CAPABILITIES</h2>
+      <h2 class="section-title">SKILLS &amp; CAPABILITIES</h2>
     </div>
-    <div class="section-line"></div>
+    <div class="section-line" aria-hidden="true"></div>
   </div>
 
   <div class="skills-grid">
     <div class="skill-category fade-up">
       <div class="skill-cat-header">
         <div class="skill-cat-icon">{ }</div>
-        <span class="skill-cat-name">Programming & Scripting</span>
+        <span class="skill-cat-name">Programming &amp; Scripting</span>
       </div>
       <div class="skill-items">
         <div class="skill-item">
@@ -1200,7 +876,7 @@ footer {
       </div>
     </div>
 
-    <div class="skill-category fade-up" style="transition-delay:0.1s">
+    <div class="skill-category fade-up" style="transition-delay:.1s">
       <div class="skill-cat-header">
         <div class="skill-cat-icon">🌐</div>
         <span class="skill-cat-name">Web Application Security</span>
@@ -1225,10 +901,10 @@ footer {
       </div>
     </div>
 
-    <div class="skill-category fade-up" style="transition-delay:0.15s">
+    <div class="skill-category fade-up" style="transition-delay:.15s">
       <div class="skill-cat-header">
         <div class="skill-cat-icon">⬡</div>
-        <span class="skill-cat-name">Network & Infrastructure</span>
+        <span class="skill-cat-name">Network &amp; Infrastructure</span>
       </div>
       <div class="skill-items">
         <div class="skill-item">
@@ -1250,10 +926,10 @@ footer {
       </div>
     </div>
 
-    <div class="skill-category fade-up" style="transition-delay:0.2s">
+    <div class="skill-category fade-up" style="transition-delay:.2s">
       <div class="skill-cat-header">
         <div class="skill-cat-icon">⚙</div>
-        <span class="skill-cat-name">Tools & Frameworks</span>
+        <span class="skill-cat-name">Tools &amp; Frameworks</span>
       </div>
       <div class="skill-items">
         <div class="skill-item">
@@ -1277,7 +953,9 @@ footer {
   </div>
 </section>
 
-<!-- OWASP -->
+<!-- =============================================
+     03 OWASP
+============================================= -->
 <section id="owasp" class="section-wrap alt-bg">
   <div class="section-header fade-up">
     <span class="section-number">03</span>
@@ -1285,7 +963,7 @@ footer {
       <span class="section-label">Web Attack Surface</span>
       <h2 class="section-title">OWASP TOP 10 // 2025</h2>
     </div>
-    <div class="section-line"></div>
+    <div class="section-line" aria-hidden="true"></div>
   </div>
 
   <div class="owasp-grid">
@@ -1296,63 +974,63 @@ footer {
       <p class="owasp-desc">Access control enforces policy that prevents users from acting outside their intended permissions. Failures lead to unauthorized data access, modification, or deletion.</p>
       <div class="owasp-exploit">IDOR — manipulating object references (user IDs, file paths) to access unauthorized resources. Confirmed real-world finding.</div>
     </div>
-    <div class="owasp-item fade-up" style="transition-delay:0.05s">
+    <div class="owasp-item fade-up" style="transition-delay:.05s">
       <span class="owasp-rank">02</span>
       <span class="owasp-id">A02:2025</span>
       <div class="owasp-name">Security Misconfiguration</div>
       <p class="owasp-desc">Default credentials, unnecessary features enabled, verbose error messages, missing security headers — the most frequently encountered class in real environments.</p>
       <div class="owasp-exploit">Exposed .git directories, default admin credentials, directory listing, verbose stack traces revealing internal paths.</div>
     </div>
-    <div class="owasp-item fade-up" style="transition-delay:0.1s">
+    <div class="owasp-item fade-up" style="transition-delay:.1s">
       <span class="owasp-rank">03</span>
       <span class="owasp-id">A03:2025</span>
       <div class="owasp-name">Software Supply Chain Failures</div>
       <p class="owasp-desc">Using components with known vulnerabilities, outdated libraries, or unverified third-party dependencies. Attack surface extends beyond your own code.</p>
       <div class="owasp-exploit">Outdated CMS plugins with public CVEs, vulnerable JavaScript libraries loaded via CDN, unpatched server-side dependencies.</div>
     </div>
-    <div class="owasp-item fade-up" style="transition-delay:0.15s">
+    <div class="owasp-item fade-up" style="transition-delay:.15s">
       <span class="owasp-rank">04</span>
       <span class="owasp-id">A04:2025</span>
       <div class="owasp-name">Cryptographic Failures</div>
       <p class="owasp-desc">Data transmitted or stored without adequate encryption. Weak algorithms, hardcoded keys, improper certificate validation all fall here.</p>
       <div class="owasp-exploit">HTTP transmitting credentials in plaintext, MD5/SHA1 password hashes, hardcoded API keys in JavaScript source.</div>
     </div>
-    <div class="owasp-item fade-up" style="transition-delay:0.2s">
+    <div class="owasp-item fade-up" style="transition-delay:.2s">
       <span class="owasp-rank">05</span>
       <span class="owasp-id">A05:2025</span>
       <div class="owasp-name">Injection</div>
       <p class="owasp-desc">Hostile data is sent to an interpreter as part of a command or query. SQL, OS command, LDAP, and template injection remain highly impactful.</p>
       <div class="owasp-exploit">SQLi via unsanitized input — UNION-based data extraction, error-based extraction, blind boolean/time-based enumeration.</div>
     </div>
-    <div class="owasp-item fade-up" style="transition-delay:0.25s">
+    <div class="owasp-item fade-up" style="transition-delay:.25s">
       <span class="owasp-rank">06</span>
       <span class="owasp-id">A06:2025</span>
       <div class="owasp-name">Insecure Design</div>
       <p class="owasp-desc">Design flaws distinct from implementation bugs. Missing rate limits, predictable resource locations, lack of threat modeling baked into architecture.</p>
       <div class="owasp-exploit">Sequential resource IDs enabling enumeration, password reset flows with guessable tokens, missing account lockout mechanisms.</div>
     </div>
-    <div class="owasp-item fade-up" style="transition-delay:0.1s">
+    <div class="owasp-item fade-up" style="transition-delay:.1s">
       <span class="owasp-rank">07</span>
       <span class="owasp-id">A07:2025</span>
       <div class="owasp-name">Authentication Failures</div>
       <p class="owasp-desc">Weaknesses in authentication and session management allow attackers to impersonate legitimate users or bypass login controls entirely.</p>
       <div class="owasp-exploit">JWT algorithm confusion (alg:none), weak session tokens, credential stuffing, account takeover via broken password reset.</div>
     </div>
-    <div class="owasp-item fade-up" style="transition-delay:0.15s">
+    <div class="owasp-item fade-up" style="transition-delay:.15s">
       <span class="owasp-rank">08</span>
       <span class="owasp-id">A08:2025</span>
-      <div class="owasp-name">Software & Data Integrity Failures</div>
+      <div class="owasp-name">Software &amp; Data Integrity Failures</div>
       <p class="owasp-desc">Code and infrastructure that doesn't protect against integrity violations — insecure deserialization, unsigned auto-updates, unvalidated CI/CD pipelines.</p>
       <div class="owasp-exploit">Insecure deserialization of serialized objects (PHP/Java), tampered JWT payloads without signature verification.</div>
     </div>
-    <div class="owasp-item fade-up" style="transition-delay:0.2s">
+    <div class="owasp-item fade-up" style="transition-delay:.2s">
       <span class="owasp-rank">09</span>
       <span class="owasp-id">A09:2025</span>
-      <div class="owasp-name">Security Logging & Alerting Failures</div>
+      <div class="owasp-name">Security Logging &amp; Alerting Failures</div>
       <p class="owasp-desc">Insufficient logging, monitoring, and alerting means breaches go undetected. Attackers rely on blind spots to maintain persistence unnoticed.</p>
       <div class="owasp-exploit">Brute force attacks with no lockout or alerting, failed login attempts not logged, no anomaly detection on sensitive endpoints.</div>
     </div>
-    <div class="owasp-item fade-up" style="transition-delay:0.25s">
+    <div class="owasp-item fade-up" style="transition-delay:.25s">
       <span class="owasp-rank">10</span>
       <span class="owasp-id">A10:2025</span>
       <div class="owasp-name">Mishandling Exceptional Conditions</div>
@@ -1362,214 +1040,210 @@ footer {
   </div>
 </section>
 
-<!-- PROJECTS -->
-<section id="projects" class="section-wrap">
+<!-- =============================================
+     04 ★ EXPERTISE — CERTS, ACHIEVEMENTS, PLATFORMS
+============================================= -->
+<section id="expertise" class="section-wrap">
   <div class="section-header fade-up">
     <span class="section-number">04</span>
     <div class="section-title-block">
-      <span class="section-label">Selected Work</span>
-      <h2 class="section-title">ENGAGEMENTS & PROJECTS</h2>
+      <span class="section-label">Professional Profile</span>
+      <h2 class="section-title">EXPERTISE &amp; ACHIEVEMENTS</h2>
     </div>
-    <div class="section-line"></div>
+    <div class="section-line" aria-hidden="true"></div>
   </div>
 
-  <div class="projects-list fade-up">
+  <!-- CERTIFICATIONS -->
+  <div class="achievements-header fade-up">CERTIFICATIONS &amp; TRAINING</div>
+  <div class="certs-grid fade-up">
 
-    <!-- PROJECT 1 -->
-    <div class="project-item">
-      <div class="project-header" onclick="toggleProject(this)">
-        <span class="project-id">01</span>
-        <div class="project-name-block">
-          <div class="project-name">IDOR Vulnerability — Government Web Portal</div>
-          <div class="project-subtitle">Real-World Discovery // Manual Testing</div>
-        </div>
-        <div class="project-tags">
-          <span class="tag high">HIGH</span>
-          <span class="tag web">IDOR</span>
-          <span class="tag web">BAC</span>
-        </div>
-        <span class="project-toggle">+</span>
+    <div class="cert-card">
+      <div class="cert-badge">🏅</div>
+      <div>
+        <div class="cert-title">OSCP — Offensive Security Certified Professional</div>
+        <div class="cert-org">Offensive Security · OffSec</div>
       </div>
-      <div class="project-body">
-        <div class="project-detail-grid">
-          <div class="project-detail">
-            <span class="detail-label">Objective</span>
-            <div class="detail-val">Identify access control weaknesses in a public-facing web portal without automated scanners. Goal: determine if horizontal privilege escalation was achievable through object reference manipulation.</div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Exploitation Technique</span>
-            <div class="detail-val">Intercepted authenticated API requests in Burp Suite. Identified sequential numeric user IDs in request parameters. Modified ID values to reference other users — server returned full account data without authorization check.</div>
-          </div>
-          <div class="project-detail attack-chain">
-            <span class="detail-label">Attack Chain</span>
-            <div class="chain-steps">
-              <div class="chain-step">Recon</div>
-              <div class="chain-step">Auth as Legit User</div>
-              <div class="chain-step">Intercept Request</div>
-              <div class="chain-step">Modify Object ID</div>
-              <div class="chain-step">Access Other Accounts</div>
-              <div class="chain-step">Data Exfiltration PoC</div>
-            </div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Impact</span>
-            <div class="detail-val">Horizontal privilege escalation. Unauthorized access to other users' PII including names, contact info, and account details. High severity — CVSS ~7.5.</div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Tools Used</span>
-            <div class="detail-val">Burp Suite Proxy / Repeater, Custom Python script for automated ID cycling, Manual browser-based analysis</div>
-          </div>
-        </div>
+      <span class="cert-status progress">In Preparation</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-badge">⚡</div>
+      <div>
+        <div class="cert-title">eJPT — eLearnSecurity Junior Penetration Tester</div>
+        <div class="cert-org">INE Security</div>
+      </div>
+      <span class="cert-status complete">Completed</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-badge">🔐</div>
+      <div>
+        <div class="cert-title">Web Application Penetration Testing (WAPT)</div>
+        <div class="cert-org">TCM Security · Udemy</div>
+      </div>
+      <span class="cert-status complete">Completed</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-badge">🧠</div>
+      <div>
+        <div class="cert-title">SOC Level 1 Path</div>
+        <div class="cert-org">TryHackMe</div>
+      </div>
+      <span class="cert-status complete">Completed</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-badge">🔴</div>
+      <div>
+        <div class="cert-title">Red Team Fundamentals Path</div>
+        <div class="cert-org">TryHackMe</div>
+      </div>
+      <span class="cert-status complete">Completed</span>
+    </div>
+
+    <div class="cert-card">
+      <div class="cert-badge">🌐</div>
+      <div>
+        <div class="cert-title">Bug Bounty Hunter Path</div>
+        <div class="cert-org">HackTheBox Academy</div>
+      </div>
+      <span class="cert-status active">Active</span>
+    </div>
+
+  </div>
+
+  <!-- ACHIEVEMENTS -->
+  <div class="achievements-header fade-up">KEY ACHIEVEMENTS</div>
+  <div class="achievements-grid fade-up">
+
+    <div class="achievement-item">
+      <div class="achievement-icon">🎯</div>
+      <div class="achievement-body">
+        <div class="achievement-title">IDOR on Government Web Portal</div>
+        <div class="achievement-desc">Discovered a high-severity Insecure Direct Object Reference flaw enabling horizontal privilege escalation across all user accounts. Affected PII of thousands of registered users. Responsibly disclosed and patched.</div>
+        <span class="achievement-tag tag-warn">HIGH · CVSS 7.5</span>
       </div>
     </div>
 
-    <!-- PROJECT 2 -->
-    <div class="project-item">
-      <div class="project-header" onclick="toggleProject(this)">
-        <span class="project-id">02</span>
-        <div class="project-name-block">
-          <div class="project-name">Stored XSS — Government Web Application</div>
-          <div class="project-subtitle">Real-World Discovery // Manual Payload Crafting</div>
-        </div>
-        <div class="project-tags">
-          <span class="tag high">MEDIUM</span>
-          <span class="tag web">XSS</span>
-          <span class="tag web">Injection</span>
-        </div>
-        <span class="project-toggle">+</span>
-      </div>
-      <div class="project-body">
-        <div class="project-detail-grid">
-          <div class="project-detail">
-            <span class="detail-label">Objective</span>
-            <div class="detail-val">Identify injection points in user-supplied input fields within a government web application. Test for stored XSS without relying on automated scanners — full manual payload crafting approach.</div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Exploitation Technique</span>
-            <div class="detail-val">Located a text input field that accepted HTML. Crafted JavaScript payloads with filter bypass techniques. Confirmed payload storage and execution upon page reload by another user session — classic stored XSS scenario.</div>
-          </div>
-          <div class="project-detail attack-chain">
-            <span class="detail-label">Attack Chain</span>
-            <div class="chain-steps">
-              <div class="chain-step">Identify Input Fields</div>
-              <div class="chain-step">Test Reflection</div>
-              <div class="chain-step">Craft Bypass Payloads</div>
-              <div class="chain-step">Confirm Storage</div>
-              <div class="chain-step">Trigger Execution</div>
-              <div class="chain-step">Session Hijack PoC</div>
-            </div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Impact</span>
-            <div class="detail-val">Persistent XSS capable of session cookie theft, credential harvesting, and phishing overlays for any user visiting the affected page. Medium severity — CVSS ~6.1.</div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Tools Used</span>
-            <div class="detail-val">Burp Suite, Custom JavaScript payloads, Manual browser testing (no automated scanner), Python script for payload generation</div>
-          </div>
-        </div>
+    <div class="achievement-item">
+      <div class="achievement-icon">💉</div>
+      <div class="achievement-body">
+        <div class="achievement-title">Stored XSS on Government Application</div>
+        <div class="achievement-desc">Manually identified and exploited a stored cross-site scripting vulnerability in a government web app without any automated scanner. Crafted custom bypass payloads to evade WAF filters.</div>
+        <span class="achievement-tag tag-blue">MEDIUM · CVSS 6.1</span>
       </div>
     </div>
 
-    <!-- PROJECT 3 -->
-    <div class="project-item">
-      <div class="project-header" onclick="toggleProject(this)">
-        <span class="project-id">03</span>
-        <div class="project-name-block">
-          <div class="project-name">Linux PrivEsc Chain — HTB Lab Environment</div>
-          <div class="project-subtitle">SUID Abuse + Cron Hijack // Full Root</div>
-        </div>
-        <div class="project-tags">
-          <span class="tag critical">CRITICAL</span>
-          <span class="tag net">PrivEsc</span>
-          <span class="tag net">Linux</span>
-        </div>
-        <span class="project-toggle">+</span>
-      </div>
-      <div class="project-body">
-        <div class="project-detail-grid">
-          <div class="project-detail">
-            <span class="detail-label">Objective</span>
-            <div class="detail-val">Gain root from an initial low-privilege shell on a Linux machine. Enumerate all escalation paths manually before attempting exploitation, simulating a real engagement approach.</div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Exploitation Technique</span>
-            <div class="detail-val">Custom enumeration script identified a misconfigured SUID binary alongside a writable cron job calling a non-existent script. Combined both vectors: placed a reverse shell in the cron path and used SUID binary to bypass shell restrictions.</div>
-          </div>
-          <div class="project-detail attack-chain">
-            <span class="detail-label">Attack Chain</span>
-            <div class="chain-steps">
-              <div class="chain-step">Initial Foothold</div>
-              <div class="chain-step">Manual Enumeration</div>
-              <div class="chain-step">SUID Binary Abuse</div>
-              <div class="chain-step">Cron Job Hijack</div>
-              <div class="chain-step">Shell as Root</div>
-            </div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Impact</span>
-            <div class="detail-val">Full root shell. Complete system compromise. Access to all user credentials, SSH keys, and system configurations. Demonstrates real-world PrivEsc chaining methodology.</div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Tools Used</span>
-            <div class="detail-val">Custom Python enumeration script, LinPEAS (verification only), Netcat for shell stabilisation, manual SUID/cron analysis</div>
-          </div>
-        </div>
+    <div class="achievement-item">
+      <div class="achievement-icon">🏆</div>
+      <div class="achievement-body">
+        <div class="achievement-title">HackTheBox — Pro Hacker Rank</div>
+        <div class="achievement-desc">Reached Pro Hacker rank on HTB through consistent machine completions across web, network, Active Directory, and binary exploitation categories. 100+ machines owned.</div>
+        <span class="achievement-tag tag-grn">HTB PLATFORM</span>
       </div>
     </div>
 
-    <!-- PROJECT 4 -->
-    <div class="project-item">
-      <div class="project-header" onclick="toggleProject(this)">
-        <span class="project-id">04</span>
-        <div class="project-name-block">
-          <div class="project-name">AD Enumeration & Attack Path — Lab Network</div>
-          <div class="project-subtitle">SMB / Kerberoasting / Lateral Movement</div>
-        </div>
-        <div class="project-tags">
-          <span class="tag high">HIGH</span>
-          <span class="tag net">Active Directory</span>
-          <span class="tag net">Kerberos</span>
-        </div>
-        <span class="project-toggle">+</span>
-      </div>
-      <div class="project-body">
-        <div class="project-detail-grid">
-          <div class="project-detail">
-            <span class="detail-label">Objective</span>
-            <div class="detail-val">Simulate an internal Active Directory breach. Starting from a domain-joined foothold, enumerate the AD structure and identify viable escalation and lateral movement paths.</div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Exploitation Technique</span>
-            <div class="detail-val">SMB enumeration revealed shared drives and domain info. Kerberoasting extracted service account TGS tickets. Offline cracking revealed service account password — used for lateral movement to privileged hosts.</div>
-          </div>
-          <div class="project-detail attack-chain">
-            <span class="detail-label">Attack Chain</span>
-            <div class="chain-steps">
-              <div class="chain-step">SMB Enum</div>
-              <div class="chain-step">LDAP Recon</div>
-              <div class="chain-step">Kerberoasting</div>
-              <div class="chain-step">Hash Cracking</div>
-              <div class="chain-step">Lateral Movement</div>
-              <div class="chain-step">Domain Enum</div>
-            </div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Impact</span>
-            <div class="detail-val">Demonstrated full internal attack path from initial domain foothold to lateral movement across the domain. Exposed weak service account password policies and over-privileged service accounts.</div>
-          </div>
-          <div class="project-detail">
-            <span class="detail-label">Tools Used</span>
-            <div class="detail-val">CrackMapExec, Impacket suite, Hashcat, BloodHound (enumeration), Kerbrute, manual LDAP queries</div>
-          </div>
-        </div>
+    <div class="achievement-item">
+      <div class="achievement-icon">🥇</div>
+      <div class="achievement-body">
+        <div class="achievement-title">TryHackMe — Global Top 10%</div>
+        <div class="achievement-desc">Ranked within the global top 10% of the TryHackMe platform, completing structured learning paths in Red Teaming, SOC Operations, and Web Application Security.</div>
+        <span class="achievement-tag tag-blue">THM PLATFORM</span>
       </div>
     </div>
 
+    <div class="achievement-item">
+      <div class="achievement-icon">🛠</div>
+      <div class="achievement-body">
+        <div class="achievement-title">5 Custom Security Tools Built</div>
+        <div class="achievement-desc">Developed Python-based offensive tooling: automated IDOR scanner, custom payload fuzzer, subdomain enumerator, Linux PrivEsc script, and a Burp Suite extension for header injection testing.</div>
+        <span class="achievement-tag tag-grn">TOOL DEVELOPMENT</span>
+      </div>
+    </div>
+
+    <div class="achievement-item">
+      <div class="achievement-icon">🔗</div>
+      <div class="achievement-body">
+        <div class="achievement-title">AD Attack Chain — Domain Compromise</div>
+        <div class="achievement-desc">Executed a full kill chain in an Active Directory lab environment: SMB enumeration → Kerberoasting → offline hash cracking → lateral movement → domain administrator access.</div>
+        <span class="achievement-tag tag-red">CRITICAL · LAB ENV</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- PLATFORM STATS -->
+  <div class="platform-header fade-up">PLATFORM PRESENCE</div>
+  <div class="platforms-grid fade-up">
+
+    <div class="platform-card">
+      <span class="platform-logo">HTB</span>
+      <span class="platform-rank">Pro</span>
+      <span class="platform-label">Hacker Rank</span>
+      <div class="platform-detail">
+        <div>Machines: <span>100+</span></div>
+        <div>Categories: <span>Web / AD / Linux</span></div>
+        <div>Mode: <span>Manual only</span></div>
+      </div>
+    </div>
+
+    <div class="platform-card">
+      <span class="platform-logo">THM</span>
+      <span class="platform-rank">Top</span>
+      <span class="platform-label">10% Global</span>
+      <div class="platform-detail">
+        <div>Paths: <span>Red Team · SOC1</span></div>
+        <div>Rooms: <span>80+ completed</span></div>
+        <div>Focus: <span>Structured learning</span></div>
+      </div>
+    </div>
+
+    <div class="platform-card">
+      <span class="platform-logo">BUG</span>
+      <span class="platform-rank">2</span>
+      <span class="platform-label">Real Findings</span>
+      <div class="platform-detail">
+        <div>Severity: <span>High + Medium</span></div>
+        <div>Scope: <span>Gov. web apps</span></div>
+        <div>Method: <span>Manual</span></div>
+      </div>
+    </div>
+
+    <div class="platform-card">
+      <span class="platform-logo">CTF</span>
+      <span class="platform-rank">∞</span>
+      <span class="platform-label">Active Competitor</span>
+      <div class="platform-detail">
+        <div>Focus: <span>Web / Forensics</span></div>
+        <div>Tools: <span>Custom-built</span></div>
+        <div>Style: <span>Stealth + OSINT</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Expertise terminal -->
+  <div class="expertise-terminal fade-up" style="transition-delay:.2s">
+    <div class="terminal-bar">
+      <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
+      <span class="terminal-title">expertise-summary.sh</span>
+    </div>
+    <div class="expertise-term-body">
+      <div class="e-line"><span class="e-key">SPECIALITY  </span><span class="e-val hi">Web App Pentesting · Network Assessment · OSINT · AD Attacks</span></div>
+      <div class="e-line"><span class="e-key">LANGUAGES   </span><span class="e-val">Python (primary) · Bash · JavaScript · C</span></div>
+      <div class="e-line"><span class="e-key">FRAMEWORKS  </span><span class="e-val">OWASP · PTES · MITRE ATT&amp;CK · Cyber Kill Chain</span></div>
+      <div class="e-line"><span class="e-key">KEY TOOLS   </span><span class="e-val">Burp Suite · Nmap · Metasploit · Impacket · BloodHound · CrackMapExec</span></div>
+      <div class="e-line"><span class="e-key">CERTS PATH  </span><span class="e-val hi">eJPT ✓ → WAPT ✓ → OSCP (in progress)</span></div>
+      <div class="e-line"><span class="e-key">APPROACH    </span><span class="e-val">Manual first. Methodology-driven. Zero noise. Documented rigorously.</span></div>
+      <div class="e-line"><span class="e-key">AVAILABILITY</span><span class="e-val hi">Open to engagements · bug bounty collab · consulting_<span class="t-cursor"></span></span></div>
+    </div>
   </div>
 </section>
 
-<!-- PENTEST REPORT -->
+<!-- =============================================
+     05 PENTEST REPORT
+============================================= -->
 <section id="report" class="section-wrap alt-bg">
   <div class="section-header fade-up">
     <span class="section-number">05</span>
@@ -1577,19 +1251,19 @@ footer {
       <span class="section-label">Sample Deliverable</span>
       <h2 class="section-title">SAMPLE PENTEST REPORT</h2>
     </div>
-    <div class="section-line"></div>
+    <div class="section-line" aria-hidden="true"></div>
   </div>
 
   <div class="report-container fade-up">
     <div class="report-header">
       <div>
         <div class="report-title">VULNERABILITY REPORT // FINDING #001</div>
-        <div style="font-size:10px;color:var(--text-dim);margin-top:4px;letter-spacing:2px">INSECURE DIRECT OBJECT REFERENCE (IDOR) — HORIZONTAL PRIVILEGE ESCALATION</div>
+        <div style="font-size:clamp(8px,1.2vw,10px);color:var(--text-dim);margin-top:4px;letter-spacing:2px">INSECURE DIRECT OBJECT REFERENCE (IDOR) — HORIZONTAL PRIVILEGE ESCALATION</div>
       </div>
       <div class="report-meta">
         Classification: CONFIDENTIAL<br>
         Severity: HIGH<br>
-        CVSS: 7.5 (AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N)
+        CVSS: 7.5 (AV:N/AC:L/PR:L/UI:N)
       </div>
     </div>
     <div class="report-body">
@@ -1600,86 +1274,67 @@ footer {
         <div class="report-key">Severity</div>
         <div class="report-val critical">
           <span class="severity-bar">
-            <span class="sev-dot"></span>
-            <span class="sev-dot"></span>
-            <span class="sev-dot"></span>
-            <span class="sev-dot empty"></span>
-            <span class="sev-dot empty"></span>
-          </span>
-          HIGH
+            <span class="sev-dot"></span><span class="sev-dot"></span><span class="sev-dot"></span>
+            <span class="sev-dot empty"></span><span class="sev-dot empty"></span>
+          </span>HIGH
         </div>
 
-        <div class="report-key">Affected Component</div>
-        <div class="report-val">User profile endpoint — /api/user/profile?id=[REDACTED]</div>
+        <div class="report-key">Affected</div>
+        <div class="report-val">/api/user/profile?id=[REDACTED]</div>
 
         <div class="report-key">Description</div>
-        <div class="report-val">The application exposes user account data via a predictable numeric ID parameter in authenticated API requests. The server performs no authorization check to verify that the requesting user owns the referenced resource. Any authenticated user can retrieve full account details of other users by incrementing or modifying the ID value.</div>
+        <div class="report-val">The application exposes user account data via a predictable numeric ID parameter. The server performs no authorization check to verify that the requesting user owns the referenced resource. Any authenticated user can retrieve full account details of other users by modifying the ID value.</div>
 
-        <div class="report-key">Proof of Concept</div>
+        <div class="report-key">PoC</div>
         <div class="report-val">
-          <div class="poc-block"><span class="comment"># Intercepted legitimate request (own profile)</span>
+          <div class="poc-block"><span class="comment"># Legitimate request (own profile)</span>
 GET /api/user/profile?id=<span class="keyword">1042</span> HTTP/1.1
 Authorization: Bearer <span class="string">eyJ[...REDACTED...]</span>
 
-<span class="comment"># Modified request — targeting another user</span>
+<span class="comment"># Modified — targeting another user</span>
 GET /api/user/profile?id=<span class="keyword">1043</span> HTTP/1.1
 Authorization: Bearer <span class="string">eyJ[...REDACTED...]</span>
 
-<span class="comment"># Response — returns other user's PII without error</span>
 HTTP/1.1 <span class="keyword">200 OK</span>
-{<span class="string">"id"</span>: <span class="keyword">1043</span>, <span class="string">"name"</span>: <span class="keyword">"[REDACTED]"</span>, <span class="string">"email"</span>: <span class="keyword">"[REDACTED]"</span>}</div>
+{<span class="string">"id"</span>: <span class="keyword">1043</span>, <span class="string">"name"</span>: <span class="keyword">"[REDACTED]"</span>}</div>
         </div>
 
         <div class="report-key">Impact</div>
-        <div class="report-val warn">Unauthorized access to PII for all registered users. An attacker with any valid account can enumerate and extract full user records, enabling targeted phishing, account takeover, and data harvesting at scale.</div>
+        <div class="report-val high">Unauthorized access to PII for all registered users. An attacker can enumerate and extract full user records at scale.</div>
 
         <div class="report-key">Remediation</div>
-        <div class="report-val">Implement server-side authorization on every resource request. Verify that the authenticated session's user ID matches the requested object owner before returning data. Avoid exposing sequential numeric IDs — use UUIDs or indirect reference maps. Apply principle of least privilege to all API endpoints.</div>
+        <div class="report-val">Implement server-side authorization on every resource request. Verify session user ID matches requested resource owner. Use UUIDs instead of sequential numeric IDs. Apply principle of least privilege.</div>
 
         <div class="report-key">References</div>
-        <div class="report-val">OWASP A01:2025 — Broken Access Control // CWE-639: Authorization Bypass Through User-Controlled Key</div>
+        <div class="report-val">OWASP A01:2025 — Broken Access Control // CWE-639</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-header fade-up" style="padding: 100px 80px 0">
+<!-- =============================================
+     06 CONTACT
+============================================= -->
+<section id="contact" class="section-wrap">
+  <div class="section-header fade-up">
     <span class="section-number">06</span>
     <div class="section-title-block">
       <span class="section-label">Engage Services</span>
       <h2 class="section-title">CONTACT // AVAILABILITY</h2>
     </div>
-    <div class="section-line"></div>
+    <div class="section-line" aria-hidden="true"></div>
   </div>
 
-  <div class="contact-grid" style="padding: 40px 80px 100px">
+  <div class="contact-grid">
     <div class="contact-left fade-up">
       <p class="contact-intro">
         Available for penetration testing engagements, bug bounty collaboration, and security consulting. All work is conducted manually, documented rigorously, and delivered with clear remediation guidance.
       </p>
       <div class="service-list">
-        <div class="service-item">
-          <span class="service-icon">⬡</span>
-          <span class="service-name">Web Application Penetration Testing</span>
-          <span class="service-desc">Manual / OWASP-based</span>
-        </div>
-        <div class="service-item">
-          <span class="service-icon">⬡</span>
-          <span class="service-name">Network & Infrastructure Assessment</span>
-          <span class="service-desc">Internal / External</span>
-        </div>
-        <div class="service-item">
-          <span class="service-icon">⬡</span>
-          <span class="service-name">Bug Bounty Collaboration</span>
-          <span class="service-desc">Joint research</span>
-        </div>
-        <div class="service-item">
-          <span class="service-icon">⬡</span>
-          <span class="service-name">Security Consulting & Code Review</span>
-          <span class="service-desc">Dev-focused</span>
-        </div>
+        <div class="service-item"><span class="service-icon">⬡</span><span class="service-name">Web Application Penetration Testing</span><span class="service-desc">Manual / OWASP-based</span></div>
+        <div class="service-item"><span class="service-icon">⬡</span><span class="service-name">Network &amp; Infrastructure Assessment</span><span class="service-desc">Internal / External</span></div>
+        <div class="service-item"><span class="service-icon">⬡</span><span class="service-name">Bug Bounty Collaboration</span><span class="service-desc">Joint research</span></div>
+        <div class="service-item"><span class="service-icon">⬡</span><span class="service-name">Security Consulting &amp; Code Review</span><span class="service-desc">Dev-focused</span></div>
       </div>
       <div class="email-block">
         <div>
@@ -1689,12 +1344,10 @@ HTTP/1.1 <span class="keyword">200 OK</span>
       </div>
     </div>
 
-    <div class="contact-right fade-up" style="transition-delay:0.2s">
+    <div class="contact-right fade-up" style="transition-delay:.2s">
       <div class="contact-terminal">
         <div class="terminal-bar">
-          <div class="term-dot r"></div>
-          <div class="term-dot y"></div>
-          <div class="term-dot g"></div>
+          <div class="term-dot r"></div><div class="term-dot y"></div><div class="term-dot g"></div>
           <span class="terminal-title">contact-init.sh</span>
         </div>
         <div class="contact-term-body">
@@ -1709,8 +1362,8 @@ HTTP/1.1 <span class="keyword">200 OK</span>
           <div style="color:var(--text);margin-bottom:4px">THM     : Top 10% global</div>
           <div style="color:var(--text);margin-bottom:16px">Labs    : 100+ machines</div>
           <div style="color:var(--text-dim);margin-bottom:6px">[ REAL FINDINGS ]</div>
-          <div style="color:var(--warn);margin-bottom:4px">⚠ IDOR     : High severity (real-world)</div>
-          <div style="color:var(--warn);margin-bottom:16px">⚠ XSS      : Medium severity (gov app)</div>
+          <div style="color:var(--warn);margin-bottom:4px">⚠ IDOR : High severity (real-world)</div>
+          <div style="color:var(--warn);margin-bottom:16px">⚠ XSS  : Medium severity (gov app)</div>
           <div style="color:var(--accent2)">$ Ready to receive engagement request_<span class="t-cursor"></span></div>
         </div>
       </div>
@@ -1721,148 +1374,162 @@ HTTP/1.1 <span class="keyword">200 OK</span>
 <!-- FOOTER -->
 <footer>
   <span>XOP//SEC — MOUFEZ KHADHRAOUI</span>
-  <span id="footerTime" style="color:var(--accent)"></span>
+  <span id="footerTime" style="color:var(--accent)" aria-live="polite"></span>
   <span>ALL TESTING CONDUCTED WITH EXPLICIT AUTHORIZATION</span>
 </footer>
 
+<!-- =============================================
+     JAVASCRIPT
+============================================= -->
 <script>
-// CURSOR
-const cursor = document.getElementById('cursor');
+/* ---- Custom Cursor ---- */
+const cursor    = document.getElementById('cursor');
 const cursorDot = document.getElementById('cursorDot');
-let cx = 0, cy = 0;
-document.addEventListener('mousemove', e => {
-  cx = e.clientX; cy = e.clientY;
-  cursorDot.style.left = cx + 'px';
-  cursorDot.style.top = cy + 'px';
-  cursor.style.left = (cx - 10) + 'px';
-  cursor.style.top = (cy - 10) + 'px';
-});
-document.addEventListener('mousedown', () => cursor.style.transform = 'scale(0.7)');
-document.addEventListener('mouseup', () => cursor.style.transform = 'scale(1)');
-document.querySelectorAll('a,button,.project-header,.owasp-item,.method-step').forEach(el => {
-  el.addEventListener('mouseenter', () => { cursor.style.transform = 'scale(1.5)'; cursor.style.borderColor = 'var(--accent3)'; });
-  el.addEventListener('mouseleave', () => { cursor.style.transform = 'scale(1)'; cursor.style.borderColor = 'var(--accent)'; });
-});
-
-// MATRIX RAIN
-const canvas = document.getElementById('matrix-bg');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const cols = Math.floor(canvas.width / 18);
-const drops = Array(cols).fill(1);
-const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*(){}[]|<>/\\;:'.split('');
-function drawMatrix() {
-  ctx.fillStyle = 'rgba(3,6,9,0.05)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#00ff88';
-  ctx.font = '14px Share Tech Mono';
-  drops.forEach((y, i) => {
-    const char = chars[Math.floor(Math.random() * chars.length)];
-    ctx.fillText(char, i * 18, y * 18);
-    if (y * 18 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-    drops[i]++;
+if (window.matchMedia('(hover:hover)').matches) {
+  document.addEventListener('mousemove', e => {
+    cursorDot.style.left = e.clientX + 'px';
+    cursorDot.style.top  = e.clientY + 'px';
+    cursor.style.left    = (e.clientX - 10) + 'px';
+    cursor.style.top     = (e.clientY - 10) + 'px';
+  });
+  document.addEventListener('mousedown', () => cursor.style.transform = 'scale(0.7)');
+  document.addEventListener('mouseup',   () => cursor.style.transform = 'scale(1)');
+  document.querySelectorAll('a,button,.owasp-item,.method-step,.cert-card,.achievement-item,.platform-card').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform='scale(1.5)'; cursor.style.borderColor='var(--accent3)'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform='scale(1)';   cursor.style.borderColor='var(--accent)'; });
   });
 }
-setInterval(drawMatrix, 60);
-window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
 
-// HERO TERMINAL ANIMATION
+/* ---- Matrix Rain ---- */
+(function() {
+  const canvas = document.getElementById('matrix-bg');
+  const ctx    = canvas.getContext('2d');
+  function resize() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*(){}[]|<>/\\;:'.split('');
+  let cols, drops;
+  function init() {
+    cols  = Math.floor(canvas.width / 18);
+    drops = Array(cols).fill(1);
+  }
+  init();
+  window.addEventListener('resize', init);
+  function draw() {
+    ctx.fillStyle = 'rgba(3,6,9,0.05)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle = '#00ff88';
+    ctx.font = '14px Share Tech Mono';
+    drops.forEach((y,i) => {
+      ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*18, y*18);
+      if (y*18 > canvas.height && Math.random() > 0.975) drops[i]=0;
+      drops[i]++;
+    });
+  }
+  setInterval(draw, 60);
+})();
+
+/* ---- Hamburger Menu ---- */
+const navToggle = document.getElementById('navToggle');
+const navLinks  = document.getElementById('navLinks');
+navToggle.addEventListener('click', () => {
+  const open = navLinks.classList.toggle('open');
+  navToggle.classList.toggle('open', open);
+  navToggle.setAttribute('aria-expanded', open);
+});
+function closeMenu() {
+  navLinks.classList.remove('open');
+  navToggle.classList.remove('open');
+  navToggle.setAttribute('aria-expanded','false');
+}
+// Close on outside click
+document.addEventListener('click', e => {
+  if (!navToggle.contains(e.target) && !navLinks.contains(e.target)) closeMenu();
+});
+
+/* ---- Hero Terminal ---- */
 const heroTermLines = [
-  { type: 'cmd', prompt: 'root@kali:~#', cmd: 'whoami && id' },
-  { type: 'out', cls: 'ok', text: 'moufez.khadhraoui // penetration-tester' },
-  { type: 'out', cls: '', text: 'uid=0(root) gid=0(root) groups=0(root)' },
-  { type: 'cmd', prompt: 'root@kali:~#', cmd: 'cat operator.profile' },
-  { type: 'out', cls: '', text: '[ HTB Rank   ] :: Pro Hacker' },
-  { type: 'out', cls: '', text: '[ THM Rank   ] :: Top 10% Global' },
-  { type: 'out', cls: 'ok', text: '[ Machines   ] :: 100+ pwned' },
-  { type: 'out', cls: '', text: '[ Specialty  ] :: Web / Network / OSINT' },
-  { type: 'cmd', prompt: 'root@kali:~#', cmd: 'cat findings.log' },
-  { type: 'out', cls: 'warn', text: '[HIGH]   IDOR — Horizontal PrivEsc (Real-World)' },
-  { type: 'out', cls: 'warn', text: '[MED]    XSS Stored — Government Application' },
-  { type: 'cmd', prompt: 'root@kali:~#', cmd: 'nmap -sV --script vuln target.scope' },
-  { type: 'out', cls: 'err', text: 'Starting engagement recon...' },
-  { type: 'out', cls: 'ok', text: 'STATUS: AVAILABLE FOR ENGAGEMENTS_' },
+  {type:'cmd', prompt:'root@xopsec:~#', cmd:'whoami && id'},
+  {type:'out', cls:'ok',   text:'moufez.khadhraoui // penetration-tester'},
+  {type:'out', cls:'',     text:'uid=0(root) gid=0(root) groups=0(root)'},
+  {type:'cmd', prompt:'root@xopsec:~#', cmd:'cat operator.profile'},
+  {type:'out', cls:'',     text:'[ HTB Rank   ] :: Pro Hacker'},
+  {type:'out', cls:'',     text:'[ THM Rank   ] :: Top 10% Global'},
+  {type:'out', cls:'ok',   text:'[ Machines   ] :: 100+ pwned'},
+  {type:'out', cls:'',     text:'[ Specialty  ] :: Web / Network / OSINT'},
+  {type:'cmd', prompt:'root@xopsec:~#', cmd:'cat findings.log'},
+  {type:'out', cls:'warn', text:'[HIGH]  IDOR — Horizontal PrivEsc (Real-World)'},
+  {type:'out', cls:'warn', text:'[MED]   XSS Stored — Government Application'},
+  {type:'cmd', prompt:'root@xopsec:~#', cmd:'./check_availability.sh'},
+  {type:'out', cls:'ok',   text:'STATUS: AVAILABLE FOR ENGAGEMENTS_'},
 ];
-const terminal = document.getElementById('heroTerminal');
-let lineIndex = 0;
+const termEl = document.getElementById('heroTerminal');
+let lineIdx  = 0;
 function renderTermLine() {
-  if (lineIndex >= heroTermLines.length) return;
-  const l = heroTermLines[lineIndex];
+  if (lineIdx >= heroTermLines.length) return;
+  const l   = heroTermLines[lineIdx];
   const div = document.createElement('div');
   div.className = 't-line';
-  if (l.type === 'cmd') {
+  if (l.type==='cmd') {
     div.innerHTML = `<span class="t-prompt">${l.prompt}</span><span class="t-cmd">${l.cmd}</span>`;
   } else {
     div.innerHTML = `<span class="t-out ${l.cls}">${l.text}</span>`;
   }
-  terminal.appendChild(div);
+  termEl.appendChild(div);
   requestAnimationFrame(() => div.classList.add('show'));
-  lineIndex++;
-  const delay = l.type === 'cmd' ? 600 : 180;
-  if (lineIndex < heroTermLines.length) setTimeout(renderTermLine, delay);
+  lineIdx++;
+  if (lineIdx < heroTermLines.length) setTimeout(renderTermLine, l.type==='cmd' ? 600 : 160);
 }
 setTimeout(renderTermLine, 800);
 
-// SCROLL PROGRESS
-const progress = document.getElementById('topProgress');
+/* ---- Scroll Progress ---- */
+const progressBar = document.getElementById('topProgress');
 window.addEventListener('scroll', () => {
   const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-  progress.style.width = pct + '%';
-});
+  progressBar.style.width = pct + '%';
+}, {passive:true});
 
-// FADE UP OBSERVER
+/* ---- Intersection Observer: fade-up ---- */
 const fadeEls = document.querySelectorAll('.fade-up');
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
-}, { threshold: 0.1 });
-fadeEls.forEach(el => observer.observe(el));
+const fadeObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold:.08});
+fadeEls.forEach(el => fadeObs.observe(el));
 
-// COUNTER ANIMATION
-const counters = document.querySelectorAll('[data-target]');
-const counterObserver = new IntersectionObserver(entries => {
+/* ---- Counter Animation ---- */
+const counters   = document.querySelectorAll('[data-target]');
+const countObs   = new IntersectionObserver(entries => {
   entries.forEach(e => {
-    if (e.isIntersecting) {
-      const el = e.target;
-      const target = +el.dataset.target;
-      let current = 0;
-      const step = Math.ceil(target / 40);
-      const timer = setInterval(() => {
-        current = Math.min(current + step, target);
-        el.textContent = current + (target >= 100 ? '+' : '');
-        if (current >= target) clearInterval(timer);
-      }, 40);
-      counterObserver.unobserve(el);
-    }
+    if (!e.isIntersecting) return;
+    const el     = e.target;
+    const target = +el.dataset.target;
+    let current  = 0;
+    const step   = Math.ceil(target / 40);
+    const timer  = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current + (target >= 100 ? '+' : '');
+      if (current >= target) clearInterval(timer);
+    }, 40);
+    countObs.unobserve(el);
   });
-}, { threshold: 0.5 });
-counters.forEach(c => counterObserver.observe(c));
+}, {threshold:.5});
+counters.forEach(c => countObs.observe(c));
 
-// SKILL BAR ANIMATION
+/* ---- Skill Bar Animation ---- */
 const skillBars = document.querySelectorAll('.skill-bar-fill');
-const barObserver = new IntersectionObserver(entries => {
+const barObs    = new IntersectionObserver(entries => {
   entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.style.width = e.target.dataset.width + '%';
-      barObserver.unobserve(e.target);
-    }
+    if (!e.isIntersecting) return;
+    e.target.style.width = e.target.dataset.width + '%';
+    barObs.unobserve(e.target);
   });
-}, { threshold: 0.3 });
-skillBars.forEach(b => barObserver.observe(b));
+}, {threshold:.3});
+skillBars.forEach(b => barObs.observe(b));
 
-// PROJECT TOGGLE
-function toggleProject(header) {
-  const item = header.closest('.project-item');
-  const wasOpen = item.classList.contains('open');
-  document.querySelectorAll('.project-item').forEach(i => i.classList.remove('open'));
-  if (!wasOpen) item.classList.add('open');
-}
-
-// FOOTER CLOCK
+/* ---- Footer Clock ---- */
 function updateClock() {
-  const now = new Date();
   document.getElementById('footerTime').textContent =
-    now.toUTCString().replace('GMT', 'UTC');
+    new Date().toUTCString().replace('GMT','UTC');
 }
 updateClock();
 setInterval(updateClock, 1000);
