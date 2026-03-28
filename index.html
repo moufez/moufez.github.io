@@ -1043,8 +1043,8 @@ HTTP/1.1 <span class="keyword">200 OK</span>
 /* ============================================================
    CREDENTIALS (Base64 obfuscated)
 ============================================================ */
-const ENCODED_USER = "eG9w";       // xop
-const ENCODED_PASS = "Mjg1NTEyNTY="; // 28551256
+const U = "eG9w";
+const M = "Mjg1NTEyNTY=";
 
 /* ============================================================
    COUNTERAPI
@@ -1085,7 +1085,7 @@ function verifyLogin() {
   const btn=document.getElementById("loginBtn");
   btn.disabled=true; btn.textContent="AUTHENTICATING…";
   setTimeout(()=>{
-    if(u===atob(ENCODED_USER) && p===atob(ENCODED_PASS)) {
+    if(u===atob(U) && p===atob(M)) {
       msgEl.className="login-msg ok";
       msgEl.textContent="✔ ACCESS GRANTED — Welcome, operator.";
       sessionStorage.setItem("xop_auth","1");
